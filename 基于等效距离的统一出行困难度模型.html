@@ -6,132 +6,137 @@
 <title>基于等效距离的统一出行困难度模型</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg: #f5f6fa;
-  --card: #ffffff;
-  --primary: #3b5bdb;
-  --primary-light: #e7edff;
-  --accent: #f03e3e;
-  --green: #2f9e44;
-  --orange: #e67700;
-  --text: #1a1a2e;
-  --muted: #6c757d;
-  --border: #dee2e6;
-  --shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: "PingFang SC","Microsoft YaHei",system-ui,sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+:root{--bg:#f5f6fa;--card:#fff;--primary:#3b5bdb;--pl:#e7edff;--red:#f03e3e;--green:#2f9e44;--orange:#e67700;--purple:#7950f2;--text:#1a1a2e;--muted:#6c757d;--border:#dee2e6;--shadow:0 2px 12px rgba(0,0,0,.08);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-/* Header */
-.header { background: linear-gradient(135deg,#1c3879,#3b5bdb); color:#fff; padding:32px 0 24px; text-align:center; }
-.header h1 { font-size:1.8rem; font-weight:700; letter-spacing:.02em; }
-.header p { margin-top:8px; opacity:.85; font-size:.95rem; }
-.header .badge { display:inline-block; margin-top:12px; background:rgba(255,255,255,.18); border-radius:20px; padding:3px 14px; font-size:.82rem; }
+.header{background:linear-gradient(135deg,#1c3879,#3b5bdb);color:#fff;padding:28px 0 20px;text-align:center;}
+.header h1{font-size:1.75rem;font-weight:700;}
+.header p{margin-top:6px;opacity:.85;font-size:.9rem;}
+.header .badge{display:inline-block;margin-top:10px;background:rgba(255,255,255,.18);border-radius:20px;padding:3px 14px;font-size:.8rem;}
 
-/* Layout */
-.container { max-width:1200px; margin:0 auto; padding:24px 16px; }
-.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
-@media(max-width:900px){ .grid2{grid-template-columns:1fr;} .grid3{grid-template-columns:1fr 1fr;} }
-@media(max-width:600px){ .grid3{grid-template-columns:1fr;} }
+.container{max-width:1160px;margin:0 auto;padding:20px 14px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr;}}
 
-/* Cards */
-.card { background:var(--card); border-radius:12px; box-shadow:var(--shadow); padding:20px 22px; margin-bottom:20px; }
-.card-title { font-size:1.05rem; font-weight:700; color:var(--primary); margin-bottom:14px; display:flex; align-items:center; gap:8px; border-bottom:2px solid var(--primary-light); padding-bottom:8px; }
-.card-title .icon { font-size:1.2rem; }
+.card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:18px;}
+.card-title{font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:12px;display:flex;align-items:center;gap:7px;border-bottom:2px solid var(--pl);padding-bottom:8px;}
 
-/* Tabs */
-.tabs { display:flex; gap:6px; margin-bottom:22px; flex-wrap:wrap; }
-.tab { padding:8px 18px; border-radius:8px; border:2px solid var(--border); background:#fff; cursor:pointer; font-size:.9rem; font-weight:600; color:var(--muted); transition:.2s; }
-.tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-.tab:hover:not(.active) { border-color:var(--primary); color:var(--primary); }
-.tab-panel { display:none; }
-.tab-panel.active { display:block; }
+.tabs{display:flex;gap:5px;margin-bottom:18px;flex-wrap:wrap;}
+.tab{padding:7px 16px;border-radius:8px;border:2px solid var(--border);background:#fff;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--muted);transition:.2s;}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.tab:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
 
-/* Form controls */
-.form-group { margin-bottom:14px; }
-label { display:block; font-size:.85rem; font-weight:600; color:var(--muted); margin-bottom:4px; }
-label span { font-weight:400; color:#aaa; font-size:.8rem; margin-left:4px; }
-input[type=range] { width:100%; accent-color:var(--primary); cursor:pointer; }
-input[type=number], select { width:100%; padding:7px 10px; border:1.5px solid var(--border); border-radius:7px; font-size:.9rem; outline:none; transition:.2s; }
-input[type=number]:focus, select:focus { border-color:var(--primary); }
-.val-display { float:right; background:var(--primary-light); color:var(--primary); border-radius:5px; padding:1px 8px; font-size:.82rem; font-weight:700; }
-.toggle-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-.toggle { position:relative; width:44px; height:24px; }
-.toggle input { opacity:0; width:0; height:0; }
-.slider-t { position:absolute; inset:0; background:#ccc; border-radius:24px; cursor:pointer; transition:.3s; }
-.slider-t:before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.3s; }
-.toggle input:checked + .slider-t { background:var(--primary); }
-.toggle input:checked + .slider-t:before { transform:translateX(20px); }
+label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:3px;}
+label span{font-weight:400;color:#aaa;font-size:.78rem;margin-left:3px;}
+input[type=range]{width:100%;accent-color:var(--primary);cursor:pointer;}
+input[type=number],select{width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:.88rem;outline:none;transition:.2s;}
+input[type=number]:focus,select:focus{border-color:var(--primary);}
+.vd{float:right;background:var(--pl);color:var(--primary);border-radius:5px;padding:1px 7px;font-size:.8rem;font-weight:700;}
+.form-group{margin-bottom:12px;}
+.toggle{position:relative;width:42px;height:22px;display:inline-block;}
+.toggle input{opacity:0;width:0;height:0;}
+.slider-t{position:absolute;inset:0;background:#ccc;border-radius:22px;cursor:pointer;transition:.3s;}
+.slider-t:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;}
+.toggle input:checked+.slider-t{background:var(--primary);}
+.toggle input:checked+.slider-t:before{transform:translateX(20px);}
+.tip{font-size:.73rem;color:#aaa;margin-top:2px;font-style:italic;}
+
+/* Global controls */
+.weather-bar,.pop-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0;}
+.w-btn,.p-btn{flex:1;min-width:60px;padding:6px 8px;border-radius:8px;border:2px solid var(--border);background:#fff;cursor:pointer;text-align:center;font-size:.82rem;font-weight:600;transition:.2s;color:var(--muted);}
+.w-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.p-btn.active{background:var(--pl);color:var(--primary);border-color:var(--primary);}
+.w-btn:hover:not(.active),.p-btn:hover:not(.active){border-color:var(--primary);}
 
 /* Result boxes */
-.result-box { border-radius:10px; padding:14px 16px; text-align:center; }
-.result-box .label { font-size:.78rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
-.result-box .value { font-size:2rem; font-weight:800; margin-top:4px; }
-.result-box .unit { font-size:.8rem; color:var(--muted); }
-.box-blue { background:var(--primary-light); }
-.box-blue .value { color:var(--primary); }
-.box-green { background:#ebfbee; }
-.box-green .value { color:var(--green); }
-.box-red { background:#fff5f5; }
-.box-red .value { color:var(--accent); }
-.box-orange { background:#fff9db; }
-.box-orange .value { color:var(--orange); }
+.rbox{border-radius:10px;padding:12px 14px;text-align:center;}
+.rbox .rl{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.rbox .rv{font-size:1.8rem;font-weight:800;margin-top:2px;}
+.rbox .ru{font-size:.78rem;color:var(--muted);}
+.box-blue{background:var(--pl);} .box-blue .rv{color:var(--primary);}
+.box-green{background:#ebfbee;} .box-green .rv{color:var(--green);}
+.box-red{background:#fff5f5;} .box-red .rv{color:var(--red);}
+.box-orange{background:#fff9db;} .box-orange .rv{color:var(--orange);}
 
-/* Route cards */
-.route-item { border:2px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:10px; transition:.2s; cursor:pointer; }
-.route-item.best { border-color:var(--green); background:#ebfbee; }
-.route-item.worst { border-color:var(--accent); background:#fff5f5; }
-.route-item:hover { border-color:var(--primary); }
-.route-name { font-weight:700; font-size:.95rem; }
-.route-meta { font-size:.8rem; color:var(--muted); margin-top:2px; }
-.route-score { float:right; font-size:1.4rem; font-weight:800; }
-.route-item.best .route-score { color:var(--green); }
-.route-item.worst .route-score { color:var(--accent); }
-.rank-badge { display:inline-block; width:22px; height:22px; border-radius:50%; text-align:center; line-height:22px; font-size:.75rem; font-weight:700; margin-right:6px; }
-.rank-1 { background:gold; color:#333; }
-.rank-2 { background:#C0C0C0; color:#333; }
-.rank-3 { background:#CD7F32; color:#fff; }
-.rank-n { background:var(--border); color:var(--muted); }
+/* Breakdown bars */
+.breakdown{margin-top:10px;}
+.bki{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.8rem;}
+.bkl{width:70px;flex-shrink:0;color:var(--muted);font-weight:600;}
+.bar-track{flex:1;height:9px;background:#eee;border-radius:5px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:5px;transition:width .4s;}
+.bkv{width:50px;text-align:right;font-weight:700;font-size:.8rem;}
 
-/* Weather selector */
-.weather-bar { display:flex; gap:8px; margin-bottom:16px; }
-.w-btn { flex:1; padding:8px; border-radius:8px; border:2px solid var(--border); background:#fff; cursor:pointer; text-align:center; font-size:.85rem; font-weight:600; transition:.2s; }
-.w-btn.active { border-color:var(--primary); background:var(--primary); color:#fff; }
+/* Route compare */
+.ri{border:2px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:default;}
+.ri.best{border-color:var(--green);background:#ebfbee;}
+.ri.worst{border-color:var(--red);background:#fff5f5;}
+.rn{font-weight:700;font-size:.9rem;}
+.rm{font-size:.77rem;color:var(--muted);margin-top:2px;}
+.rs{float:right;font-size:1.3rem;font-weight:800;}
+.ri.best .rs{color:var(--green);}
+.ri.worst .rs{color:var(--red);}
+.rb{display:inline-block;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font-size:.72rem;font-weight:700;margin-right:5px;}
+.r1{background:gold;color:#333;} .r2{background:#C0C0C0;color:#333;} .r3{background:#CD7F32;color:#fff;} .rn2{background:var(--border);color:var(--muted);}
+.formula{background:#f8f9ff;border-left:4px solid var(--primary);padding:8px 12px;border-radius:0 8px 8px 0;font-family:monospace;font-size:.85rem;margin:8px 0;color:#2d3a8c;}
+.chart-wrap{position:relative;height:260px;}
+.section-title{font-size:1.1rem;font-weight:800;color:var(--text);margin:20px 0 10px;border-left:4px solid var(--primary);padding-left:10px;}
 
-/* Population selector */
-.pop-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
-.p-btn { padding:6px 14px; border-radius:20px; border:2px solid var(--border); background:#fff; cursor:pointer; font-size:.82rem; font-weight:600; transition:.2s; color:var(--muted); }
-.p-btn.active { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+/* ===== TRIP BUILDER ===== */
+.journey-total-wrap{background:linear-gradient(135deg,#1c3879,#3b5bdb);color:#fff;border-radius:16px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.journey-total-left{display:flex;flex-direction:column;align-items:center;min-width:100px;}
+.journey-total-num{font-size:3rem;font-weight:900;line-height:1;}
+.journey-total-label{font-size:.78rem;opacity:.8;margin-top:2px;}
+.journey-bar-wrap{flex:1;min-width:200px;}
+.journey-bar{height:36px;background:rgba(255,255,255,.12);border-radius:18px;overflow:hidden;display:flex;cursor:pointer;margin-bottom:8px;}
+.jseg-block{height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;transition:flex .4s;}
+.jseg-block:hover{filter:brightness(1.15);}
+.jseg-label{font-size:.68rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 5px;}
+.journey-legend{display:flex;gap:10px;flex-wrap:wrap;}
+.jleg{display:flex;align-items:center;gap:4px;font-size:.72rem;opacity:.85;}
+.jleg-dot{width:8px;height:8px;border-radius:50%;}
+.journey-empty{color:rgba(255,255,255,.5);font-size:.85rem;padding:8px 0;text-align:center;}
 
-/* Formula display */
-.formula { background:#f8f9ff; border-left:4px solid var(--primary); padding:10px 14px; border-radius:0 8px 8px 0; font-family:monospace; font-size:.9rem; margin:10px 0; color:#2d3a8c; }
+.route-presets-bar{display:flex;gap:7px;flex-wrap:wrap;}
+.rp-btn{padding:6px 13px;border-radius:18px;border:2px solid var(--border);background:#fff;cursor:pointer;font-size:.8rem;font-weight:600;color:var(--muted);transition:.2s;}
+.rp-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--pl);}
 
-/* Breakdown bar */
-.breakdown { margin-top:12px; }
-.breakdown-item { display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:.83rem; }
-.breakdown-label { width:80px; flex-shrink:0; color:var(--muted); font-weight:600; }
-.bar-track { flex:1; height:10px; background:#eee; border-radius:5px; overflow:hidden; }
-.bar-fill { height:100%; border-radius:5px; transition:width .5s; }
-.breakdown-val { width:55px; text-align:right; font-weight:700; font-size:.85rem; }
+.seg-card{display:flex;border-radius:12px;box-shadow:var(--shadow);background:#fff;margin-bottom:9px;overflow:hidden;border:1.5px solid var(--border);transition:border-color .2s;}
+.seg-card:hover{border-color:#adb5bd;}
+.seg-strip{width:5px;flex-shrink:0;}
+.seg-content{flex:1;padding:11px 14px;}
+.seg-header{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.seg-badge{padding:2px 9px;border-radius:10px;font-size:.74rem;font-weight:700;flex-shrink:0;white-space:nowrap;}
+.seg-name{flex:1;border:none;outline:none;font-size:.9rem;font-weight:600;background:transparent;min-width:60px;}
+.seg-name:focus{border-bottom:2px solid var(--primary);}
+.seg-preset-sel{padding:3px 7px;border:1.5px solid var(--border);border-radius:6px;font-size:.77rem;cursor:pointer;background:#f8f9ff;color:var(--primary);font-weight:600;max-width:130px;}
+.seg-h{font-size:1.05rem;font-weight:800;color:var(--primary);min-width:60px;text-align:right;flex-shrink:0;}
+.seg-exp-btn{padding:3px 9px;border:1.5px solid var(--border);border-radius:6px;background:#f8f9fa;cursor:pointer;font-size:.77rem;color:var(--muted);transition:.2s;white-space:nowrap;}
+.seg-exp-btn:hover{background:var(--pl);color:var(--primary);}
+.seg-del-btn{width:26px;height:26px;border-radius:50%;border:none;background:#fff0f0;color:var(--red);cursor:pointer;font-size:.82rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.seg-del-btn:hover{background:var(--red);color:#fff;}
+.seg-summary{font-size:.75rem;color:var(--muted);margin-top:4px;}
+.seg-body{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+@media(max-width:480px){.seg-body{grid-template-columns:1fr;}}
+.sp label{font-size:.76rem;font-weight:600;color:var(--muted);display:block;margin-bottom:2px;}
+.sp input[type=number]{width:100%;padding:5px 7px;border:1.5px solid var(--border);border-radius:5px;font-size:.85rem;}
+.sp input[type=range]{width:100%;accent-color:var(--primary);}
+.sp-val{float:right;color:var(--primary);font-weight:700;}
+.toggle-row{display:flex;align-items:center;gap:8px;margin-top:4px;}
 
-/* Sensitivity sliders */
-.sensitivity-item { margin-bottom:16px; }
-.sens-header { display:flex; justify-content:space-between; margin-bottom:4px; }
-.sens-label { font-size:.88rem; font-weight:600; }
-.sens-val { font-size:.88rem; color:var(--primary); font-weight:700; }
+.add-seg-bar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:11px 13px;background:#f8f9fa;border-radius:10px;border:2px dashed var(--border);margin-bottom:18px;}
+.as-btn{padding:6px 13px;border-radius:7px;border:2px solid;cursor:pointer;font-size:.82rem;font-weight:700;transition:.2s;}
+.as-walk{border-color:#4c6ef5;color:#4c6ef5;background:#e7edff;} .as-walk:hover{background:#4c6ef5;color:#fff;}
+.as-wait{border-color:var(--red);color:var(--red);background:#fff5f5;} .as-wait:hover{background:var(--red);color:#fff;}
+.as-ride{border-color:var(--green);color:var(--green);background:#ebfbee;} .as-ride:hover{background:var(--green);color:#fff;}
+.as-trans{border-color:var(--orange);color:var(--orange);background:#fff9db;} .as-trans:hover{background:var(--orange);color:#fff;}
+.as-cost{border-color:var(--purple);color:var(--purple);background:#f3f0ff;} .as-cost:hover{background:var(--purple);color:#fff;}
+.as-clear{border-color:var(--border);color:var(--muted);background:#fff;} .as-clear:hover{background:var(--red);color:#fff;border-color:var(--red);}
 
-/* Tooltip */
-.tip { font-size:.75rem; color:var(--muted); margin-top:2px; font-style:italic; }
-
-/* Section title */
-.section-title { font-size:1.3rem; font-weight:800; color:var(--text); margin:28px 0 14px; border-left:4px solid var(--primary); padding-left:12px; }
-
-/* Chart container */
-.chart-wrap { position:relative; height:280px; }
-
-/* Footer */
-footer { text-align:center; padding:24px; color:var(--muted); font-size:.82rem; }
+footer{text-align:center;padding:20px;color:var(--muted);font-size:.8rem;}
 </style>
 </head>
 <body>
@@ -144,1036 +149,884 @@ footer { text-align:center; padding:24px; color:var(--muted); font-size:.82rem; 
 
 <div class="container">
 
-  <!-- 全局控制 -->
+<!-- 全局设置 -->
+<div class="card">
+  <div class="card-title">⚙️ 全局情境设置（影响所有计算）</div>
+  <div class="grid3">
+    <div>
+      <label>天气条件</label>
+      <div class="weather-bar">
+        <div class="w-btn active" onclick="setWeather('clear',this)">☀️ 晴天</div>
+        <div class="w-btn" onclick="setWeather('light',this)">🌦️ 小雨</div>
+        <div class="w-btn" onclick="setWeather('moderate',this)">🌧️ 中雨</div>
+        <div class="w-btn" onclick="setWeather('heavy',this)">⛈️ 大雨</div>
+      </div>
+    </div>
+    <div>
+      <label>出行人群</label>
+      <div class="pop-bar">
+        <div class="p-btn active" onclick="setPop('normal',this)">普通</div>
+        <div class="p-btn" onclick="setPop('elderly',this)">老年人</div>
+        <div class="p-btn" onclick="setPop('wheelchair',this)">轮椅</div>
+        <div class="p-btn" onclick="setPop('cargo',this)">携重物</div>
+      </div>
+    </div>
+    <div>
+      <label>金钱折算系数 ε <span>(米/元)</span></label>
+      <div class="vd" id="eps_d">120</div>
+      <input type="range" min="60" max="300" value="120" id="eps" oninput="syncD(this,'eps_d');recalcAll()">
+      <p class="tip">低收入群体可调高；高收入可调低</p>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('tab-trip',this)">🗺️ 行程规划</div>
+  <div class="tab" onclick="switchTab('tab-walk',this)">🚶 步行段</div>
+  <div class="tab" onclick="switchTab('tab-wait',this)">⏱️ 等待</div>
+  <div class="tab" onclick="switchTab('tab-onboard',this)">🚌 车内</div>
+  <div class="tab" onclick="switchTab('tab-transfer',this)">🔄 换乘</div>
+  <div class="tab" onclick="switchTab('tab-compare',this)">📊 方案对比</div>
+  <div class="tab" onclick="switchTab('tab-case',this)">🏙️ 上海案例</div>
+  <div class="tab" onclick="switchTab('tab-sens',this)">🔬 敏感性</div>
+</div>
+
+<!-- ===== TRIP BUILDER ===== -->
+<div class="tab-panel active" id="tab-trip">
+
+  <!-- Journey total + bar -->
+  <div class="journey-total-wrap">
+    <div class="journey-total-left">
+      <div class="journey-total-num" id="trip_total">0</div>
+      <div class="journey-total-label">等效米 总困难度</div>
+    </div>
+    <div class="journey-bar-wrap">
+      <div class="journey-bar" id="trip_bar">
+        <div class="journey-empty">添加路段后显示可视化行程条</div>
+      </div>
+      <div class="journey-legend" id="trip_legend"></div>
+    </div>
+  </div>
+
+  <!-- Route presets -->
   <div class="card">
-    <div class="card-title"><span class="icon">⚙️</span>全局情境设置</div>
-    <div class="grid3">
-      <div>
-        <label>天气条件</label>
-        <div class="weather-bar">
-          <div class="w-btn active" onclick="setWeather('clear',this)">☀️ 晴天</div>
-          <div class="w-btn" onclick="setWeather('light',this)">🌦️ 小雨</div>
-          <div class="w-btn" onclick="setWeather('moderate',this)">🌧️ 中雨</div>
-          <div class="w-btn" onclick="setWeather('heavy',this)">⛈️ 大雨</div>
-        </div>
-      </div>
-      <div>
-        <label>出行人群</label>
-        <div class="pop-bar">
-          <div class="p-btn active" onclick="setPopulation('normal',this)">普通行人</div>
-          <div class="p-btn" onclick="setPopulation('elderly',this)">老年人</div>
-          <div class="p-btn" onclick="setPopulation('wheelchair',this)">轮椅使用者</div>
-          <div class="p-btn" onclick="setPopulation('cargo',this)">携带重物</div>
-        </div>
-      </div>
-      <div>
-        <label>金钱成本折算系数 <span>ε (米/元)</span></label>
-        <div class="val-display" id="eps_disp">120</div>
-        <input type="range" min="60" max="300" value="120" id="eps" oninput="syncSlider(this,'eps_disp');recalcAll()">
-        <p class="tip">低收入群体可调高至200+；高收入可调低至60</p>
-      </div>
-    </div>
+    <div class="card-title">📋 快速加载路线预设（上海案例）</div>
+    <div class="route-presets-bar" id="route_presets_bar"></div>
+    <p class="tip" style="margin-top:8px;">点击预设将清空当前行程并加载对应路段，可在此基础上继续编辑</p>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('tab-walk',this)">🚶 步行段</div>
-    <div class="tab" onclick="switchTab('tab-wait',this)">⏱️ 等待时间</div>
-    <div class="tab" onclick="switchTab('tab-onboard',this)">🚌 车内体验</div>
-    <div class="tab" onclick="switchTab('tab-transfer',this)">🔄 换乘</div>
-    <div class="tab" onclick="switchTab('tab-compare',this)">📊 方案对比</div>
-    <div class="tab" onclick="switchTab('tab-case',this)">🗺️ 上海案例</div>
-    <div class="tab" onclick="switchTab('tab-sensitivity',this)">🔬 参数敏感性</div>
-  </div>
+  <!-- Segment cards -->
+  <div id="trip_segs"></div>
 
-  <!-- ===== Tab 1: 步行段 ===== -->
-  <div class="tab-panel active" id="tab-walk">
-    <div class="grid2">
-      <div class="card">
-        <div class="card-title"><span class="icon">🗃️</span>路径物理参数</div>
-        <div class="formula">H_walk = L + ΣΔLᵢ − ΔL_shade</div>
-
-        <div class="form-group">
-          <label>基础路段长度 L <span>(米)</span></label>
-          <input type="number" id="w_L" value="500" min="0" max="5000" oninput="calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>平均坡度 θ <span>(%)，上坡取正</span></label>
-          <div class="val-display" id="w_theta_disp">3</div>
-          <input type="range" min="0" max="20" step="0.5" value="3" id="w_theta" oninput="syncSlider(this,'w_theta_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>台阶数量 N_step <span>(级)</span></label>
-          <input type="number" id="w_Nstep" value="0" min="0" max="200" oninput="calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>台阶陡度修正 k_s</label>
-          <div class="val-display" id="w_ks_disp">1.0</div>
-          <input type="range" min="0.5" max="2" step="0.1" value="1.0" id="w_ks" oninput="syncSlider(this,'w_ks_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>有效步行宽度 w <span>(米)</span></label>
-          <div class="val-display" id="w_width_disp">2.0</div>
-          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="w_width" oninput="syncSlider(this,'w_width_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>路面平整度 q <span>(0=坑洼, 1=完美)</span></label>
-          <div class="val-display" id="w_q_disp">0.85</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.85" id="w_q" oninput="syncSlider(this,'w_q_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>人工遮蔽覆盖率 S <span>(雨棚/骑楼)</span></label>
-          <div class="val-display" id="w_S_disp">0.2</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.2" id="w_S" oninput="syncSlider(this,'w_S_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>树荫覆盖率 S_tree</label>
-          <div class="val-display" id="w_Stree_disp">0.3</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.3" id="w_Stree" oninput="syncSlider(this,'w_Stree_disp');calcWalk()">
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="icon">🔧</span>环境与障碍参数</div>
-        <div class="form-group">
-          <label>红绿灯数量 N_light <span>(个)</span></label>
-          <input type="number" id="w_Nlight" value="2" min="0" max="20" oninput="calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>单次红绿灯等待 T_light <span>(分钟)</span></label>
-          <div class="val-display" id="w_Tlight_disp">0.8</div>
-          <input type="range" min="0" max="3" step="0.1" value="0.8" id="w_Tlight" oninput="syncSlider(this,'w_Tlight_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>障碍物干扰度 B <span>(施工/违停)</span></label>
-          <div class="val-display" id="w_B_disp">0.1</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.1" id="w_B" oninput="syncSlider(this,'w_B_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>噪音水平 N_noise <span>(分贝，基准50)</span></label>
-          <div class="val-display" id="w_noise_disp">55</div>
-          <input type="range" min="40" max="90" step="1" value="55" id="w_noise" oninput="syncSlider(this,'w_noise_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>无障碍设施水平 A <span>(0=无, 1=完善)</span></label>
-          <div class="val-display" id="w_A_disp">0.5</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.5" id="w_A" oninput="syncSlider(this,'w_A_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>导引标识清晰度 G <span>(0=缺失, 1=清晰)</span></label>
-          <div class="val-display" id="w_G_disp">0.8</div>
-          <input type="range" min="0" max="1" step="0.1" value="0.8" id="w_G" oninput="syncSlider(this,'w_G_disp');calcWalk()">
-        </div>
-        <div class="form-group">
-          <label>软拥挤附加系数 <span>(步行街人流)</span></label>
-          <div class="val-display" id="w_crowd_disp">0.0</div>
-          <input type="range" min="0" max="0.8" step="0.05" value="0.0" id="w_crowd" oninput="syncSlider(this,'w_crowd_disp');calcWalk()">
-          <p class="tip">仅用于步行街等人流密集场景</p>
-        </div>
-
-        <div style="margin-top:18px;border-top:1px solid var(--border);padding-top:14px;">
-          <div class="grid2">
-            <div class="result-box box-blue">
-              <div class="label">晴天困难度</div>
-              <div class="value" id="walk_clear_result">—</div>
-              <div class="unit">等效米</div>
-            </div>
-            <div class="result-box box-red">
-              <div class="label">雨天困难度</div>
-              <div class="value" id="walk_rain_result">—</div>
-              <div class="unit">等效米</div>
-            </div>
-          </div>
-          <div class="breakdown" id="walk_breakdown"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== Tab 2: 等待时间 ===== -->
-  <div class="tab-panel" id="tab-wait">
-    <div class="grid2">
-      <div class="card">
-        <div class="card-title"><span class="icon">⏱️</span>等待参数输入</div>
-        <div class="formula">H_wait = γ₁·T_wait + γ₂·σ_wait + γ₃·(1−I_info)·T_wait + γ₄·U_env</div>
-        <div class="form-group">
-          <label>交通方式</label>
-          <select id="wt_mode" onchange="calcWait()">
-            <option value="bus">🚌 公交车</option>
-            <option value="metro">🚇 地铁</option>
-            <option value="taxi">🚕 出租车/网约车</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>期望等待时间 T_wait <span>(分钟)</span></label>
-          <div class="val-display" id="wt_T_disp">6</div>
-          <input type="range" min="0" max="30" step="0.5" value="6" id="wt_T" oninput="syncSlider(this,'wt_T_disp');calcWait()">
-        </div>
-        <div class="form-group">
-          <label>等待时间标准差 σ_wait <span>(分钟)</span></label>
-          <div class="val-display" id="wt_sigma_disp">3</div>
-          <input type="range" min="0" max="15" step="0.5" value="3" id="wt_sigma" oninput="syncSlider(this,'wt_sigma_disp');calcWait()">
-          <p class="tip">越大表示越不可靠；地铁通常0.5左右</p>
-        </div>
-        <div class="form-group">
-          <label>实时到站信息 I_info</label>
-          <div class="toggle-row">
-            <label class="toggle"><input type="checkbox" id="wt_info" onchange="calcWait()"><span class="slider-t"></span></label>
-            <span id="wt_info_label">无实时信息</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>候车环境不适度 U_env <span>(0=空调候车室, 1=露天酷暑)</span></label>
-          <div class="val-display" id="wt_env_disp">0.5</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.5" id="wt_env" oninput="syncSlider(this,'wt_env_disp');calcWait()">
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="icon">📐</span>计算结果</div>
-        <div class="result-box box-blue" style="margin-bottom:12px;">
-          <div class="label">等待困难度 H_wait</div>
-          <div class="value" id="wait_result">—</div>
-          <div class="unit">等效米</div>
-        </div>
-        <div class="breakdown" id="wait_breakdown"></div>
-        <div style="margin-top:16px;">
-          <div class="formula" style="font-size:.82rem;line-height:1.6;">
-            参数：γ₁=70 米/分 · γ₂=100 米/分·σ<br>
-            γ₃=30 米/分(信息缺失) · γ₄=50 米(环境)
-          </div>
-          <p class="tip" style="margin-top:8px;">📌 示例：准时地铁(T=2,σ=0.5,有信息,封闭站台) → 约190米；混乱公交(T=8,σ=5,无信息,露天) → 约1340米</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== Tab 3: 车内体验 ===== -->
-  <div class="tab-panel" id="tab-onboard">
-    <div class="grid2">
-      <div class="card">
-        <div class="card-title"><span class="icon">🚌</span>车内参数输入</div>
-        <div class="formula">H_onboard = T_travel · (δ₁ + δ₂·C_rowd + δ₃·(1−S_seat) + δ₄·(1−A_veh) + δ₅·V_vib)</div>
-        <div class="form-group">
-          <label>交通方式预设</label>
-          <select id="ob_preset" onchange="applyOnboardPreset()">
-            <option value="custom">自定义</option>
-            <option value="metro_peak">地铁（高峰）</option>
-            <option value="metro_offpeak">地铁（平峰）</option>
-            <option value="bus_peak">公交（高峰）</option>
-            <option value="bus_offpeak">公交（平峰）</option>
-            <option value="taxi">出租车/网约车</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>乘车时间 T_travel <span>(分钟)</span></label>
-          <div class="val-display" id="ob_T_disp">10</div>
-          <input type="range" min="1" max="60" step="1" value="10" id="ob_T" oninput="syncSlider(this,'ob_T_disp');calcOnboard()">
-        </div>
-        <div class="form-group">
-          <label>车内拥挤度 C_rowd <span>(0=空车, 1=极度拥挤)</span></label>
-          <div class="val-display" id="ob_crowd_disp">0.5</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.5" id="ob_crowd" oninput="syncSlider(this,'ob_crowd_disp');calcOnboard()">
-        </div>
-        <div class="form-group">
-          <label>有座概率 S_seat</label>
-          <div class="val-display" id="ob_seat_disp">0.5</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.5" id="ob_seat" oninput="syncSlider(this,'ob_seat_disp');calcOnboard()">
-        </div>
-        <div class="form-group">
-          <label>车辆无障碍水平 A_veh <span>(低地板/轮椅位)</span></label>
-          <div class="val-display" id="ob_aveh_disp">0.6</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.6" id="ob_aveh" oninput="syncSlider(this,'ob_aveh_disp');calcOnboard()">
-        </div>
-        <div class="form-group">
-          <label>振动/急刹不适 V_vib <span>(公交>地铁>出租车)</span></label>
-          <div class="val-display" id="ob_vib_disp">0.4</div>
-          <input type="range" min="0" max="1" step="0.05" value="0.4" id="ob_vib" oninput="syncSlider(this,'ob_vib_disp');calcOnboard()">
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="icon">📐</span>计算结果</div>
-        <div class="result-box box-blue" style="margin-bottom:12px;">
-          <div class="label">车内困难度 H_onboard</div>
-          <div class="value" id="onboard_result">—</div>
-          <div class="unit">等效米</div>
-        </div>
-        <div class="result-box" style="background:#f8f9ff;margin-bottom:12px;padding:10px;">
-          <div style="font-size:.82rem;color:var(--muted);">每分钟折算率</div>
-          <div style="font-size:1.3rem;font-weight:800;color:var(--primary);" id="onboard_rate">—</div>
-          <div style="font-size:.78rem;color:var(--muted);">米/分钟</div>
-        </div>
-        <div class="breakdown" id="onboard_breakdown"></div>
-        <div style="margin-top:14px;">
-          <p class="tip">δ₁=5(基础) · δ₂=40(拥挤) · δ₃=30(无座) · δ₄=20(无障碍缺位) · δ₅=10(振动)</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== Tab 4: 换乘 ===== -->
-  <div class="tab-panel" id="tab-transfer">
-    <div class="grid2">
-      <div class="card">
-        <div class="card-title"><span class="icon">🔄</span>换乘参数</div>
-        <div class="formula">H_transfer = H_walk,trans + η₁·N_level + η₂·(1−E) + η₃</div>
-        <div class="form-group">
-          <label>换乘通道步行长度 <span>(米)</span></label>
-          <input type="number" id="tr_walk" value="200" min="0" max="1000" oninput="calcTransfer()">
-        </div>
-        <div class="form-group">
-          <label>通道台阶数 <span>(级)</span></label>
-          <input type="number" id="tr_steps" value="0" min="0" max="100" oninput="calcTransfer()">
-        </div>
-        <div class="form-group">
-          <label>上下楼层数 N_level</label>
-          <div class="val-display" id="tr_level_disp">2</div>
-          <input type="range" min="0" max="8" step="1" value="2" id="tr_level" oninput="syncSlider(this,'tr_level_disp');calcTransfer()">
-        </div>
-        <div class="form-group">
-          <label>电梯/扶梯可用度 E</label>
-          <div class="val-display" id="tr_E_disp">0.8</div>
-          <input type="range" min="0" max="1" step="0.1" value="0.8" id="tr_E" oninput="syncSlider(this,'tr_E_disp');calcTransfer()">
-          <p class="tip">1=完全可用；0=全程需爬楼梯</p>
-        </div>
-        <div class="form-group">
-          <label>换乘次数</label>
-          <input type="number" id="tr_count" value="1" min="0" max="5" oninput="calcTransfer()">
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="icon">📐</span>计算结果</div>
-        <div class="result-box box-blue" style="margin-bottom:12px;">
-          <div class="label">单次换乘困难度</div>
-          <div class="value" id="transfer_single">—</div>
-          <div class="unit">等效米</div>
-        </div>
-        <div class="result-box box-orange" style="margin-bottom:12px;">
-          <div class="label">总换乘困难度（×次数）</div>
-          <div class="value" id="transfer_total">—</div>
-          <div class="unit">等效米</div>
-        </div>
-        <div class="breakdown" id="transfer_breakdown"></div>
-        <div style="margin-top:14px;">
-          <p class="tip">η₂=50米（电梯缺失惩罚）· η₃=200米（固定心理换乘惩罚/次）</p>
-          <p class="tip" style="margin-top:6px;">对出租车/网约车：无换乘，此项为0</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== Tab 5: 方案对比 ===== -->
-  <div class="tab-panel" id="tab-compare">
-    <div class="card">
-      <div class="card-title"><span class="icon">📊</span>自定义方案总困难度对比</div>
-      <p style="font-size:.88rem;color:var(--muted);margin-bottom:16px;">在下方配置各出行方案的参数，系统将自动计算并排序。每个方案包含：接近段步行 + 等待 + 车内 + 换乘 + 经济成本。</p>
-      <div id="routes-container"></div>
-      <button onclick="addRoute()" style="padding:8px 18px;border:2px dashed var(--primary);background:var(--primary-light);color:var(--primary);border-radius:8px;cursor:pointer;font-weight:600;font-size:.88rem;margin-bottom:16px;">+ 添加方案</button>
-      <div class="grid2">
-        <div>
-          <div class="section-title" style="margin-top:0;font-size:1rem;">方案排名</div>
-          <div id="compare_ranking"></div>
-        </div>
-        <div>
-          <div class="section-title" style="margin-top:0;font-size:1rem;">困难度构成</div>
-          <div class="chart-wrap"><canvas id="compareChart"></canvas></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== Tab 6: 上海案例 ===== -->
-  <div class="tab-panel" id="tab-case">
-    <div class="card">
-      <div class="card-title"><span class="icon">🗺️</span>案例：上海博物馆 → 黄浦体育馆（黄浦区人民广场周边）</div>
-      <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px;">研究区域覆盖黄浦区约1平方公里（南京东路步行街、人民广场地铁站、九江路沿线），共设计7条出行方案。拖动天气条件或人群类型可实时更新结果。</p>
-      <div class="grid2" style="margin-bottom:16px;">
-        <div>
-          <div class="chart-wrap"><canvas id="caseBarChart"></canvas></div>
-        </div>
-        <div>
-          <div id="case_ranking"></div>
-        </div>
-      </div>
-      <div class="section-title" style="margin-top:8px;font-size:1rem;">改造前后对比</div>
-      <div class="chart-wrap"><canvas id="caseImproveChart"></canvas></div>
-    </div>
-  </div>
-
-  <!-- ===== Tab 7: 参数敏感性 ===== -->
-  <div class="tab-panel" id="tab-sensitivity">
-    <div class="grid2">
-      <div class="card">
-        <div class="card-title"><span class="icon">🔬</span>参数敏感性分析</div>
-        <p style="font-size:.85rem;color:var(--muted);margin-bottom:14px;">调整关键参数，观察对上海案例各方案排名的影响。</p>
-        <div class="sensitivity-item">
-          <div class="sens-header"><span class="sens-label">ε 金钱折算系数（米/元）</span><span class="sens-val" id="sv_eps">120</span></div>
-          <input type="range" min="40" max="300" value="120" id="sv_eps_slider" oninput="document.getElementById('sv_eps').textContent=this.value;renderSensitivity()">
-        </div>
-        <div class="sensitivity-item">
-          <div class="sens-header"><span class="sens-label">δ₂ 拥挤惩罚系数（米/分·拥挤度）</span><span class="sens-val" id="sv_delta2">40</span></div>
-          <input type="range" min="10" max="100" value="40" id="sv_delta2_slider" oninput="document.getElementById('sv_delta2').textContent=this.value;renderSensitivity()">
-        </div>
-        <div class="sensitivity-item">
-          <div class="sens-header"><span class="sens-label">η₃ 换乘心理惩罚（米/次）</span><span class="sens-val" id="sv_eta3">200</span></div>
-          <input type="range" min="50" max="500" value="200" id="sv_eta3_slider" oninput="document.getElementById('sv_eta3').textContent=this.value;renderSensitivity()">
-        </div>
-        <div class="sensitivity-item">
-          <div class="sens-header"><span class="sens-label">λ_rain_walk 雨天步行放大（中雨）</span><span class="sens-val" id="sv_rain">1.55</span></div>
-          <input type="range" min="1.0" max="2.5" step="0.05" value="1.55" id="sv_rain_slider" oninput="document.getElementById('sv_rain').textContent=parseFloat(this.value).toFixed(2);renderSensitivity()">
-        </div>
-        <div class="sensitivity-item">
-          <div class="sens-header"><span class="sens-label">α₁ 坡度惩罚系数</span><span class="sens-val" id="sv_alpha1">20</span></div>
-          <input type="range" min="5" max="50" value="20" id="sv_alpha1_slider" oninput="document.getElementById('sv_alpha1').textContent=this.value;renderSensitivity()">
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="icon">📈</span>方案困难度随参数变化</div>
-        <div class="chart-wrap"><canvas id="sensitivityChart"></canvas></div>
-        <div id="sens_ranking" style="margin-top:12px;"></div>
-      </div>
-    </div>
+  <!-- Add segment -->
+  <div class="add-seg-bar">
+    <span style="color:var(--muted);font-size:.82rem;">添加路段：</span>
+    <button class="as-btn as-walk" onclick="addSeg('walk')">🚶 步行段</button>
+    <button class="as-btn as-wait" onclick="addSeg('wait')">⏱️ 等待时间</button>
+    <button class="as-btn as-ride" onclick="addSeg('ride')">🚌 乘车段</button>
+    <button class="as-btn as-trans" onclick="addSeg('transfer')">🔄 换乘</button>
+    <button class="as-btn as-cost" onclick="addSeg('cost')">💰 经济成本</button>
+    <button class="as-btn as-clear" onclick="clearSegs()">🗑️ 清空</button>
   </div>
 
 </div>
 
-<footer>基于等效距离的统一出行困难度模型 · 上海市行知中学步履寻径团队 · 交互式建模工具</footer>
+<!-- ===== WALK TAB ===== -->
+<div class="tab-panel" id="tab-walk">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🚶 步行段参数</div>
+      <div class="formula">H_walk = L + ΣΔLᵢ − ΔL_shade</div>
+      <div class="form-group"><label>路段长度 L <span>(米)</span></label><input type="number" id="wL" value="500" oninput="calcWalk()"></div>
+      <div class="form-group"><label>坡度 θ <span>(%)</span></label><div class="vd" id="d_wtheta">3</div><input type="range" min="0" max="20" step=".5" value="3" id="wtheta" oninput="syncD(this,'d_wtheta');calcWalk()"></div>
+      <div class="form-group"><label>台阶数 <span>(级)</span></label><input type="number" id="wNstep" value="0" oninput="calcWalk()"></div>
+      <div class="form-group"><label>有效宽度 <span>(米)</span></label><div class="vd" id="d_ww">2.0</div><input type="range" min=".5" max="6" step=".1" value="2" id="ww" oninput="syncD(this,'d_ww');calcWalk()"></div>
+      <div class="form-group"><label>平整度 q <span>(0=坑洼, 1=完美)</span></label><div class="vd" id="d_wq">0.85</div><input type="range" min="0" max="1" step=".05" value=".85" id="wq" oninput="syncD(this,'d_wq');calcWalk()"></div>
+      <div class="form-group"><label>遮蔽率 S <span>(雨棚/骑楼)</span></label><div class="vd" id="d_wS">0.20</div><input type="range" min="0" max="1" step=".05" value=".2" id="wS" oninput="syncD(this,'d_wS');calcWalk()"></div>
+      <div class="form-group"><label>树荫覆盖 S_tree</label><div class="vd" id="d_wSt">0.30</div><input type="range" min="0" max="1" step=".05" value=".3" id="wSt" oninput="syncD(this,'d_wSt');calcWalk()"></div>
+      <div class="form-group"><label>红绿灯数</label><input type="number" id="wNl" value="2" oninput="calcWalk()"></div>
+      <div class="form-group"><label>单次等待 <span>(分钟)</span></label><div class="vd" id="d_wTl">0.8</div><input type="range" min="0" max="3" step=".1" value=".8" id="wTl" oninput="syncD(this,'d_wTl');calcWalk()"></div>
+      <div class="form-group"><label>障碍物 B</label><div class="vd" id="d_wB">0.10</div><input type="range" min="0" max="1" step=".05" value=".1" id="wB" oninput="syncD(this,'d_wB');calcWalk()"></div>
+      <div class="form-group"><label>噪音 <span>(分贝，基准50)</span></label><div class="vd" id="d_wn">55</div><input type="range" min="40" max="90" step="1" value="55" id="wn" oninput="syncD(this,'d_wn');calcWalk()"></div>
+      <div class="form-group"><label>无障碍设施 A</label><div class="vd" id="d_wA">0.50</div><input type="range" min="0" max="1" step=".05" value=".5" id="wA" oninput="syncD(this,'d_wA');calcWalk()"></div>
+      <div class="form-group"><label>人流拥挤附加</label><div class="vd" id="d_wcr">0.00</div><input type="range" min="0" max=".8" step=".05" value="0" id="wcr" oninput="syncD(this,'d_wcr');calcWalk()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📐 计算结果</div>
+      <div class="grid2" style="margin-bottom:12px;">
+        <div class="rbox box-blue"><div class="rl">晴天困难度</div><div class="rv" id="walk_c">—</div><div class="ru">等效米</div></div>
+        <div class="rbox box-red"><div class="rl">雨天困难度</div><div class="rv" id="walk_r">—</div><div class="ru">等效米</div></div>
+      </div>
+      <div class="breakdown" id="walk_bk"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WAIT TAB ===== -->
+<div class="tab-panel" id="tab-wait">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">⏱️ 等待时间参数</div>
+      <div class="formula">H_wait = γ₁·T + γ₂·σ + γ₃·(1−I)·T + γ₄·U</div>
+      <div class="form-group"><label>交通方式</label><select id="wt_mode" onchange="calcWait()"><option value="bus">🚌 公交</option><option value="metro">🚇 地铁</option><option value="taxi">🚕 出租车</option></select></div>
+      <div class="form-group"><label>等待时间 T <span>(分钟)</span></label><div class="vd" id="d_wtT">6</div><input type="range" min="0" max="30" step=".5" value="6" id="wtT" oninput="syncD(this,'d_wtT');calcWait()"></div>
+      <div class="form-group"><label>不确定性 σ <span>(分钟)</span></label><div class="vd" id="d_wts">3</div><input type="range" min="0" max="15" step=".5" value="3" id="wts" oninput="syncD(this,'d_wts');calcWait()"></div>
+      <div class="form-group"><label>实时到站信息</label><div class="toggle-row"><label class="toggle"><input type="checkbox" id="wt_info" onchange="calcWait()"><span class="slider-t"></span></label><span id="wt_info_lbl">无</span></div></div>
+      <div class="form-group"><label>候车环境 U <span>(0=空调, 1=露天酷暑)</span></label><div class="vd" id="d_wtu">0.50</div><input type="range" min="0" max="1" step=".05" value=".5" id="wtu" oninput="syncD(this,'d_wtu');calcWait()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📐 结果</div>
+      <div class="rbox box-blue" style="margin-bottom:10px;"><div class="rl">H_wait</div><div class="rv" id="wait_r">—</div><div class="ru">等效米</div></div>
+      <div class="breakdown" id="wait_bk"></div>
+      <p class="tip" style="margin-top:10px;">γ₁=70 · γ₂=100 · γ₃=30 · γ₄=50（米/分钟或米/次）</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ONBOARD TAB ===== -->
+<div class="tab-panel" id="tab-onboard">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🚌 车内体验参数</div>
+      <div class="formula">H_onboard = T·(δ₁+δ₂·C+δ₃·(1−S)+δ₄·(1−A)+δ₅·V)</div>
+      <div class="form-group"><label>预设</label><select id="ob_pre" onchange="applyObPreset()"><option value="">自定义</option><option value="mp">地铁平峰</option><option value="mh">地铁高峰</option><option value="bp">公交平峰</option><option value="bh">公交高峰</option><option value="tx">出租车</option></select></div>
+      <div class="form-group"><label>乘车时间 T <span>(分钟)</span></label><div class="vd" id="d_obT">10</div><input type="range" min="1" max="60" step="1" value="10" id="obT" oninput="syncD(this,'d_obT');calcOnboard()"></div>
+      <div class="form-group"><label>拥挤度 C</label><div class="vd" id="d_obC">0.50</div><input type="range" min="0" max="1" step=".05" value=".5" id="obC" oninput="syncD(this,'d_obC');calcOnboard()"></div>
+      <div class="form-group"><label>有座概率 S</label><div class="vd" id="d_obS">0.50</div><input type="range" min="0" max="1" step=".05" value=".5" id="obS" oninput="syncD(this,'d_obS');calcOnboard()"></div>
+      <div class="form-group"><label>车辆无障碍 A</label><div class="vd" id="d_obA">0.60</div><input type="range" min="0" max="1" step=".05" value=".6" id="obA" oninput="syncD(this,'d_obA');calcOnboard()"></div>
+      <div class="form-group"><label>振动 V</label><div class="vd" id="d_obV">0.40</div><input type="range" min="0" max="1" step=".05" value=".4" id="obV" oninput="syncD(this,'d_obV');calcOnboard()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📐 结果</div>
+      <div class="rbox box-blue" style="margin-bottom:8px;"><div class="rl">H_onboard</div><div class="rv" id="ob_r">—</div><div class="ru">等效米</div></div>
+      <div class="rbox" style="background:#f8f9ff;margin-bottom:8px;padding:8px;"><div style="font-size:.78rem;color:var(--muted);">折算率</div><div style="font-size:1.2rem;font-weight:800;color:var(--primary);" id="ob_rate">—</div><div style="font-size:.75rem;color:var(--muted);">米/分钟</div></div>
+      <div class="breakdown" id="ob_bk"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TRANSFER TAB ===== -->
+<div class="tab-panel" id="tab-transfer">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🔄 换乘参数</div>
+      <div class="formula">H_transfer = H_walk,trans + η₁·N_level + η₂·(1−E) + η₃</div>
+      <div class="form-group"><label>通道步行长度 <span>(米)</span></label><input type="number" id="tr_w" value="200" oninput="calcTransfer()"></div>
+      <div class="form-group"><label>通道台阶数</label><input type="number" id="tr_s" value="0" oninput="calcTransfer()"></div>
+      <div class="form-group"><label>楼层数 N</label><div class="vd" id="d_trN">2</div><input type="range" min="0" max="8" step="1" value="2" id="trN" oninput="syncD(this,'d_trN');calcTransfer()"></div>
+      <div class="form-group"><label>电梯可用度 E</label><div class="vd" id="d_trE">0.80</div><input type="range" min="0" max="1" step=".1" value=".8" id="trE" oninput="syncD(this,'d_trE');calcTransfer()"></div>
+      <div class="form-group"><label>换乘次数</label><input type="number" id="tr_c" value="1" oninput="calcTransfer()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📐 结果</div>
+      <div class="rbox box-blue" style="margin-bottom:8px;"><div class="rl">单次换乘</div><div class="rv" id="tr_s_r">—</div><div class="ru">等效米</div></div>
+      <div class="rbox box-orange" style="margin-bottom:8px;"><div class="rl">总换乘困难度</div><div class="rv" id="tr_t_r">—</div><div class="ru">等效米</div></div>
+      <div class="breakdown" id="tr_bk"></div>
+      <p class="tip" style="margin-top:8px;">η₂=50米（无电梯）· η₃=200米（固定心理成本/次）</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COMPARE TAB ===== -->
+<div class="tab-panel" id="tab-compare">
+  <div class="card">
+    <div class="card-title">📊 自定义方案对比</div>
+    <div id="cmp_routes"></div>
+    <button onclick="addCmpRoute()" style="padding:7px 16px;border:2px dashed var(--primary);background:var(--pl);color:var(--primary);border-radius:8px;cursor:pointer;font-weight:600;font-size:.85rem;margin-bottom:14px;">+ 添加方案</button>
+    <div class="grid2">
+      <div><div class="section-title" style="margin-top:0;font-size:.95rem;">排名</div><div id="cmp_ranking"></div></div>
+      <div><div class="section-title" style="margin-top:0;font-size:.95rem;">困难度构成</div><div class="chart-wrap"><canvas id="cmpChart"></canvas></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CASE TAB ===== -->
+<div class="tab-panel" id="tab-case">
+  <div class="card">
+    <div class="card-title">🏙️ 上海博物馆 → 黄浦体育馆（随全局设置实时更新）</div>
+    <div class="grid2" style="margin-bottom:14px;">
+      <div class="chart-wrap"><canvas id="caseChart"></canvas></div>
+      <div id="case_ranking"></div>
+    </div>
+    <div class="section-title" style="font-size:.95rem;">改造前后对比</div>
+    <div class="chart-wrap"><canvas id="improveChart"></canvas></div>
+  </div>
+</div>
+
+<!-- ===== SENSITIVITY TAB ===== -->
+<div class="tab-panel" id="tab-sens">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🔬 参数敏感性分析</div>
+      <div class="form-group"><label>ε 金钱折算 <span class="vd" id="sv_eps_d">120</span></label><input type="range" min="40" max="300" value="120" id="sv_eps" oninput="document.getElementById('sv_eps_d').textContent=this.value;renderSens()"></div>
+      <div class="form-group"><label>δ₂ 拥挤惩罚系数 <span class="vd" id="sv_d2_d">40</span></label><input type="range" min="10" max="100" value="40" id="sv_d2" oninput="document.getElementById('sv_d2_d').textContent=this.value;renderSens()"></div>
+      <div class="form-group"><label>η₃ 换乘心理惩罚（米/次） <span class="vd" id="sv_eta3_d">200</span></label><input type="range" min="50" max="500" value="200" id="sv_eta3" oninput="document.getElementById('sv_eta3_d').textContent=this.value;renderSens()"></div>
+      <div class="form-group"><label>λ_rain 步行放大（中雨）<span class="vd" id="sv_rain_d">1.55</span></label><input type="range" min="1" max="2.5" step=".05" value="1.55" id="sv_rain" oninput="document.getElementById('sv_rain_d').textContent=parseFloat(this.value).toFixed(2);renderSens()"></div>
+      <div class="form-group"><label>α₁ 坡度系数 <span class="vd" id="sv_a1_d">20</span></label><input type="range" min="5" max="50" value="20" id="sv_a1" oninput="document.getElementById('sv_a1_d').textContent=this.value;renderSens()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 方案排名变化</div>
+      <div class="chart-wrap"><canvas id="sensChart"></canvas></div>
+      <div id="sens_ranking" style="margin-top:10px;"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+<footer>基于等效距离的统一出行困难度模型 · 上海市行知中学步履寻径团队</footer>
 
 <script>
 // ============================================================
-// Global state
+// GLOBAL STATE
 // ============================================================
-let weather = 'clear';
-let population = 'normal';
-let compareChart, caseBarChart, caseImproveChart, sensitivityChart;
+let weather='clear', population='normal';
+let cmpChart,caseChart,improveChart,sensChart;
 
-const weatherParams = {
-  clear:    { lambda:1.00, alpha_slip:0,    alpha_vis:0    },
-  light:    { lambda:1.30, alpha_slip:0.20, alpha_vis:0.10 },
-  moderate: { lambda:1.55, alpha_slip:0.30, alpha_vis:0.15 },
-  heavy:    { lambda:1.80, alpha_slip:0.40, alpha_vis:0.20 }
+const WP={
+  clear:{lam:1.00,slip:0,vis:0},
+  light:{lam:1.30,slip:.20,vis:.10},
+  moderate:{lam:1.55,slip:.30,vis:.15},
+  heavy:{lam:1.80,slip:.40,vis:.20}
 };
-
-const popParams = {
-  normal:     { stairMult:1,    slopeMult:1,   vibMult:1,   epsMult:1    },
-  elderly:    { stairMult:1.5,  slopeMult:1.5, vibMult:1.5, epsMult:1    },
-  wheelchair: { stairMult:999,  slopeMult:1.2, vibMult:1.2, epsMult:1    },
-  cargo:      { stairMult:2,    slopeMult:1.3, vibMult:1,   epsMult:1    }
+const PP={
+  normal:{sm:1,slm:1,vm:1},
+  elderly:{sm:1.5,slm:1.5,vm:1.5},
+  wheelchair:{sm:999,slm:1.2,vm:1.2},
+  cargo:{sm:2,slm:1.3,vm:1}
 };
+function wp(){return WP[weather];}
+function pp(){return PP[population];}
+function eps(){return parseFloat(document.getElementById('eps').value);}
+function fmt(n){return isFinite(n)?Math.round(n):'∞';}
+function syncD(el,id){let v=parseFloat(el.value);document.getElementById(id).textContent=v%1===0?v:v.toFixed(2);}
 
-function getEps(){ return parseFloat(document.getElementById('eps').value); }
-function getWeatherP(){ return weatherParams[weather]; }
-function getPopP(){ return popParams[population]; }
+function setWeather(w,el){weather=w;document.querySelectorAll('.w-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');recalcAll();}
+function setPop(p,el){population=p;document.querySelectorAll('.p-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');recalcAll();}
+function switchTab(id,el){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');el.classList.add('active');}
 
-// ============================================================
-// Utility
-// ============================================================
-function setWeather(w, el){
-  weather = w;
-  document.querySelectorAll('.w-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  // sync eps slider from global
-  document.getElementById('eps').dispatchEvent(new Event('input'));
-  recalcAll();
-}
-
-function setPopulation(p, el){
-  population = p;
-  document.querySelectorAll('.p-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  recalcAll();
-}
-
-function switchTab(id, el){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  el.classList.add('active');
-}
-
-function syncSlider(el, dispId){
-  let v = parseFloat(el.value);
-  document.getElementById(dispId).textContent = v % 1 === 0 ? v : v.toFixed(2);
-}
-
-function fmt(n){ return isFinite(n) ? Math.round(n) : '∞'; }
-
-function renderBreakdown(containerId, items, total){
-  const c = document.getElementById(containerId);
-  if(!c) return;
-  const colors = ['#3b5bdb','#f03e3e','#2f9e44','#e67700','#7950f2','#1098ad','#e64980'];
-  c.innerHTML = items.map((it,i)=>{
-    const pct = total > 0 ? Math.max(0, Math.min(100, it.val/total*100)) : 0;
-    return `<div class="breakdown-item">
-      <span class="breakdown-label">${it.label}</span>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${colors[i%colors.length]}"></div></div>
-      <span class="breakdown-val">${fmt(it.val)}米</span>
-    </div>`;
+function renderBK(id,items,total){
+  const c=document.getElementById(id);if(!c)return;
+  const cols=['#3b5bdb','#f03e3e','#2f9e44','#e67700','#7950f2','#1098ad','#e64980'];
+  c.innerHTML=items.map((it,i)=>{
+    const pct=total>0?Math.max(0,Math.min(100,it.v/total*100)):0;
+    return`<div class="bki"><span class="bkl">${it.l}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cols[i%cols.length]}"></div></div><span class="bkv">${fmt(it.v)}</span></div>`;
   }).join('');
 }
 
 // ============================================================
-// Walk calculation
+// CORE CALCULATION FUNCTIONS
 // ============================================================
-function calcWalkParams(L, theta, Nstep, ks, w, q, S, Stree, Nlight, Tlight, B, noise, A, G, crowd){
-  const p = getPopP();
-  const a1=20, a2=1.5, b1=0.3, b0=0.2, a4=0.2, a5=0.2, bshade=0.05;
-  const a6=80, a7=0.3, a8=0.005, N0=50, a9=0.05, a10=15;
-
-  const dL_slope = a1 * (theta/100) * L;
-  let dL_step = a2 * ks * Nstep;
-  if(p.stairMult >= 999 && Nstep > 0) return Infinity;
-  dL_step *= p.stairMult;
-  const dL_narrow = Math.max(0, b1/Math.max(w,0.1) - b0) * L;
-  const dL_surface = a4 * (1-q) * L;
-  const dL_shelter = a5 * (1-S) * L;
-  const dL_shade = bshade * Stree * L;
-  const dL_light = a6 * Tlight * Nlight;
-  const dL_obstacle = a7 * B * L;
-  const dL_noise = Math.max(0, a8 * (noise - N0) * L);
-  const dL_access = -a9 * A * L;
-  const dL_sign = G >= 1 ? 0 : -a10 * (1-G);
-  const dL_crowdPed = crowd * L;
-
-  const H_clear = L + dL_slope + dL_step + dL_narrow + dL_surface + dL_shelter
-                - dL_shade + dL_light + dL_obstacle + dL_noise + dL_access + dL_sign + dL_crowdPed;
-
-  const wp = getWeatherP();
-  const dL_wet = wp.alpha_slip * (1-q) * L;
-  const dL_vis = wp.alpha_vis * L;
-  let lambda = wp.lambda;
-  // rain shelter discount
-  if(S >= 0.8) lambda = Math.max(1, lambda - 0.2);
-  if(population === 'wheelchair' || population === 'cargo') lambda *= 1.1;
-  const H_rain = lambda * H_clear + dL_wet + dL_vis;
-
-  return {
-    H_clear, H_rain,
-    items_clear:[
-      {label:'基础距离', val:L},
-      {label:'坡度', val:dL_slope},
-      {label:'台阶', val:dL_step},
-      {label:'狭窄', val:dL_narrow},
-      {label:'不平整', val:dL_surface},
-      {label:'无遮蔽', val:dL_shelter},
-      {label:'红绿灯', val:dL_light},
-      {label:'障碍物', val:dL_obstacle},
-    ]
-  };
+function calcWalkH(L,theta,Nstep,ks,w,q,S,Stree,Nlight,Tlight,B,noise,A,crowd){
+  const p=pp();
+  if(p.sm>=999&&Nstep>0)return Infinity;
+  const dSlope=20*(theta/100)*L;
+  const dStep=1.5*ks*Nstep*p.sm;
+  const dNarrow=Math.max(0,.3/Math.max(w,.1)-.2)*L;
+  const dSurf=.2*(1-q)*L;
+  const dShelt=.2*(1-S)*L;
+  const dShade=.05*Stree*L;
+  const dLight=80*Tlight*Nlight;
+  const dObs=.3*B*L;
+  const dNoise=Math.max(0,.005*(noise-50)*L);
+  const dAcc=-.05*A*L;
+  const dCrowd=crowd*L;
+  const Hc=L+dSlope+dStep+dNarrow+dSurf+dShelt-dShade+dLight+dObs+dNoise+dAcc+dCrowd;
+  if(weather==='clear')return Hc;
+  const w2=wp();
+  let lam=w2.lam;
+  if(S>=.8)lam=Math.max(1,lam-.2);
+  if(p.sm>=999||p.sm>=2)lam*=1.1;
+  return lam*Hc+w2.slip*(1-q)*L+w2.vis*L;
 }
 
-function calcWalk(){
-  const L=parseFloat(document.getElementById('w_L').value)||0;
-  const theta=parseFloat(document.getElementById('w_theta').value)||0;
-  const Nstep=parseFloat(document.getElementById('w_Nstep').value)||0;
-  const ks=parseFloat(document.getElementById('w_ks').value)||1;
-  const w=parseFloat(document.getElementById('w_width').value)||2;
-  const q=parseFloat(document.getElementById('w_q').value)||0.85;
-  const S=parseFloat(document.getElementById('w_S').value)||0;
-  const Stree=parseFloat(document.getElementById('w_Stree').value)||0;
-  const Nlight=parseFloat(document.getElementById('w_Nlight').value)||0;
-  const Tlight=parseFloat(document.getElementById('w_Tlight').value)||0.8;
-  const B=parseFloat(document.getElementById('w_B').value)||0;
-  const noise=parseFloat(document.getElementById('w_noise').value)||55;
-  const A=parseFloat(document.getElementById('w_A').value)||0.5;
-  const G=parseFloat(document.getElementById('w_G').value)||1;
-  const crowd=parseFloat(document.getElementById('w_crowd').value)||0;
+function calcWaitH(T,sig,info,env){
+  const w2=wp();
+  let T2=T,sig2=sig,env2=env;
+  if(weather!=='clear'){sig2*=1.3;}
+  return 70*T2+100*sig2+30*(info?0:1)*T2+50*env2;
+}
 
-  const r = calcWalkParams(L,theta,Nstep,ks,w,q,S,Stree,Nlight,Tlight,B,noise,A,G,crowd);
-  if(r === Infinity){
-    document.getElementById('walk_clear_result').textContent='∞';
-    document.getElementById('walk_rain_result').textContent='∞';
-    document.getElementById('walk_breakdown').innerHTML='<p style="color:var(--accent);font-size:.85rem;margin-top:8px;">⚠️ 路径含不可通过台阶（轮椅使用者视为断路）</p>';
-    return;
-  }
-  document.getElementById('walk_clear_result').textContent=fmt(r.H_clear);
-  document.getElementById('walk_rain_result').textContent=fmt(r.H_rain);
-  renderBreakdown('walk_breakdown', r.items_clear, r.H_clear);
+function calcRideH(T,crowd,seat,aveh,vib){
+  const p=pp();
+  const d1=5,d2=40*p.vm,d3=30,d4=20,d5=10*p.vm;
+  return T*(d1+d2*crowd+d3*(1-seat)+d4*(1-aveh)+d5*vib);
+}
+
+function calcTransferH(walkLen,steps,level,E){
+  const p=pp();
+  if(p.sm>=999&&steps>0)return Infinity;
+  const Hw=walkLen+1.5*steps*p.sm;
+  return Hw+15*level+50*(1-E)+200;
 }
 
 // ============================================================
-// Wait calculation
+// TRIP BUILDER
 // ============================================================
-function calcWait(){
-  const T=parseFloat(document.getElementById('wt_T').value)||0;
-  const sigma=parseFloat(document.getElementById('wt_sigma').value)||0;
-  const info=document.getElementById('wt_info').checked?1:0;
-  const env=parseFloat(document.getElementById('wt_env').value)||0;
-  document.getElementById('wt_info_label').textContent=info?'有实时到站信息':'无实时信息';
+let tripSegs=[], segCount=0;
 
-  const wp=getWeatherP();
-  let T2=T, sigma2=sigma, env2=env;
-  if(weather!=='clear'){
-    const mode=document.getElementById('wt_mode').value;
-    if(mode==='bus'){ sigma2*=1.35; }
-    if(mode==='taxi'){ T2=Math.max(T2,T2*1.8); sigma2*=2; env2=Math.min(1,env2+0.3); }
-  }
-
-  const g1=70, g2=100, g3=30, g4=50;
-  const H = g1*T2 + g2*sigma2 + g3*(1-info)*T2 + g4*env2;
-  document.getElementById('wait_result').textContent=fmt(H);
-  renderBreakdown('wait_breakdown',[
-    {label:'等待基础', val:g1*T2},
-    {label:'不确定性', val:g2*sigma2},
-    {label:'信息缺失', val:g3*(1-info)*T2},
-    {label:'环境不适', val:g4*env2}
-  ], H);
-}
-
-// ============================================================
-// Onboard calculation
-// ============================================================
-const presets = {
-  metro_peak:    {T:15,crowd:0.85,seat:0.2,aveh:0.9,vib:0.1},
-  metro_offpeak: {T:15,crowd:0.3, seat:0.7,aveh:0.9,vib:0.1},
-  bus_peak:      {T:20,crowd:0.8, seat:0.2,aveh:0.5,vib:0.5},
-  bus_offpeak:   {T:20,crowd:0.3, seat:0.6,aveh:0.5,vib:0.4},
-  taxi:          {T:9, crowd:0,   seat:1,  aveh:0.5,vib:0.1}
+const SEG_TYPE={
+  walk:{icon:'🚶',label:'步行段',color:'#4c6ef5'},
+  wait:{icon:'⏱️',label:'等待',color:'#f03e3e'},
+  ride:{icon:'🚌',label:'乘车',color:'#2f9e44'},
+  transfer:{icon:'🔄',label:'换乘',color:'#e67700'},
+  cost:{icon:'💰',label:'经济成本',color:'#7950f2'}
 };
 
-function applyOnboardPreset(){
-  const p=presets[document.getElementById('ob_preset').value];
-  if(!p) return;
-  document.getElementById('ob_T').value=p.T; syncSlider(document.getElementById('ob_T'),'ob_T_disp');
-  document.getElementById('ob_crowd').value=p.crowd; syncSlider(document.getElementById('ob_crowd'),'ob_crowd_disp');
-  document.getElementById('ob_seat').value=p.seat; syncSlider(document.getElementById('ob_seat'),'ob_seat_disp');
-  document.getElementById('ob_aveh').value=p.aveh; syncSlider(document.getElementById('ob_aveh'),'ob_aveh_disp');
-  document.getElementById('ob_vib').value=p.vib; syncSlider(document.getElementById('ob_vib'),'ob_vib_disp');
-  calcOnboard();
+const WALK_PRESETS=[
+  {n:'人民大道（博物馆出口）',L:200,th:0,Ns:0,ks:1,w:8,q:.90,S:.5,St:0,Nl:0,Tl:.8,B:0,ns:55,A:.8,cr:0},
+  {n:'西藏中路',L:450,th:0,Ns:0,ks:1,w:3,q:.85,S:.3,St:.2,Nl:2,Tl:1,B:.1,ns:60,A:.5,cr:.2},
+  {n:'九江路全程',L:1150,th:0,Ns:0,ks:1,w:1.5,q:.80,S:.1,St:.7,Nl:3,Tl:.8,B:.1,ns:55,A:.4,cr:.1},
+  {n:'南京路步行街',L:1033,th:0,Ns:0,ks:1,w:18,q:.90,S:.3,St:0,Nl:1,Tl:.8,B:.1,ns:65,A:.7,cr:.3},
+  {n:'广西北路（支路）',L:380,th:0,Ns:0,ks:1,w:1.2,q:.70,S:.1,St:.1,Nl:1,Tl:.8,B:.2,ns:55,A:.3,cr:.05},
+  {n:'北海路（支路）',L:250,th:0,Ns:0,ks:1,w:1.3,q:.70,S:.1,St:0,Nl:0,Tl:.8,B:.1,ns:50,A:.3,cr:.05},
+  {n:'湖北路（支路）',L:250,th:0,Ns:0,ks:1,w:1.5,q:.75,S:.1,St:0,Nl:1,Tl:.8,B:.1,ns:52,A:.3,cr:.05},
+  {n:'汉口路末段',L:480,th:0,Ns:0,ks:1,w:2,q:.75,S:.1,St:0,Nl:1,Tl:.8,B:.1,ns:55,A:.4,cr:.1},
+  {n:'延安东路',L:140,th:0,Ns:0,ks:1,w:2.5,q:.85,S:.1,St:0,Nl:1,Tl:1,B:.1,ns:65,A:.5,cr:.1},
+  {n:'河南中路末段',L:417,th:0,Ns:0,ks:1,w:2,q:.80,S:.1,St:0,Nl:1,Tl:.8,B:.1,ns:58,A:.4,cr:.15},
+  {n:'自定义步行段',L:300,th:0,Ns:0,ks:1,w:2,q:.85,S:.2,St:.2,Nl:1,Tl:.8,B:0,ns:55,A:.5,cr:0}
+];
+const WAIT_PRESETS=[
+  {n:'地铁站（人民广场/南京东路）',T:2.5,sig:.5,info:true,env:0},
+  {n:'武胜路公交站（露天）',T:7,sig:4,info:false,env:.7},
+  {n:'路边打车（晴天）',T:4,sig:2,info:true,env:.3},
+  {n:'路边打车（中雨）',T:12,sig:4,info:true,env:.7},
+  {n:'自定义等待',T:5,sig:2,info:false,env:.5}
+];
+const RIDE_PRESETS=[
+  {n:'地铁2号线一站（平峰）',T:3,crowd:.3,seat:.8,aveh:.9,vib:.1},
+  {n:'地铁2号线一站（高峰）',T:3,crowd:.85,seat:.2,aveh:.9,vib:.1},
+  {n:'49路公交（平峰）',T:8,crowd:.3,seat:.6,aveh:.5,vib:.4},
+  {n:'49路公交（高峰）',T:8,crowd:.7,seat:.2,aveh:.5,vib:.5},
+  {n:'出租车/网约车',T:9,crowd:0,seat:1,aveh:.5,vib:.1},
+  {n:'自定义乘车',T:10,crowd:.5,seat:.5,aveh:.7,vib:.3}
+];
+const TRANS_PRESETS=[
+  {n:'人民广场站内换乘',wl:200,st:0,lv:2,E:.8},
+  {n:'普通地面换乘',wl:100,st:0,lv:1,E:.9},
+  {n:'老站无电梯',wl:150,st:30,lv:2,E:.2},
+  {n:'自定义换乘',wl:150,st:0,lv:1,E:.8}
+];
+
+// Route presets
+const ROUTE_PRESETS=[
+  {name:'方案1 南京路',segs:[
+    {type:'walk',name:'人民大道',p:WALK_PRESETS[0]},
+    {type:'walk',name:'西藏中路',p:WALK_PRESETS[1]},
+    {type:'walk',name:'南京路步行街',p:WALK_PRESETS[3]},
+    {type:'walk',name:'河南中路末段',p:WALK_PRESETS[9]}
+  ]},
+  {name:'方案2 南线支路',segs:[
+    {type:'walk',name:'延安东路',p:WALK_PRESETS[8]},
+    {type:'walk',name:'广西北路',p:WALK_PRESETS[4]},
+    {type:'walk',name:'北海路',p:WALK_PRESETS[5]},
+    {type:'walk',name:'湖北路',p:WALK_PRESETS[6]},
+    {type:'walk',name:'汉口路',p:WALK_PRESETS[7]}
+  ]},
+  {name:'方案3 地铁2号线',segs:[
+    {type:'walk',name:'步行至人民广场站',p:{...WALK_PRESETS[1],L:450}},
+    {type:'wait',name:'等待地铁',p:WAIT_PRESETS[0]},
+    {type:'ride',name:'地铁2号线',p:RIDE_PRESETS[0]},
+    {type:'walk',name:'出站至体育馆',p:{...WALK_PRESETS[0],L:120,A:.6}}
+  ]},
+  {name:'方案4 地铁20号口',segs:[
+    {type:'walk',name:'步行进站',p:{...WALK_PRESETS[1],L:300}},
+    {type:'transfer',name:'站内穿行',p:TRANS_PRESETS[0]},
+    {type:'walk',name:'九江路至终点',p:WALK_PRESETS[2]}
+  ]},
+  {name:'方案5 49路公交',segs:[
+    {type:'walk',name:'步行至武胜路站',p:{...WALK_PRESETS[4],L:350,q:.8}},
+    {type:'wait',name:'等待49路',p:WAIT_PRESETS[1]},
+    {type:'ride',name:'49路公交',p:RIDE_PRESETS[2]},
+    {type:'walk',name:'下车步行',p:{...WALK_PRESETS[7],L:180,q:.75}}
+  ]},
+  {name:'方案6 九江路',segs:[
+    {type:'walk',name:'人民大道',p:WALK_PRESETS[0]},
+    {type:'walk',name:'西藏中路',p:WALK_PRESETS[1]},
+    {type:'walk',name:'九江路',p:WALK_PRESETS[2]}
+  ]},
+  {name:'方案T 出租车',segs:[
+    {type:'walk',name:'门口上车',p:{...WALK_PRESETS[0],L:30}},
+    {type:'wait',name:'等待出租车',p:WAIT_PRESETS[2]},
+    {type:'ride',name:'出租车行程',p:RIDE_PRESETS[4]},
+    {type:'cost',name:'打车费用',cost:16}
+  ]}
+];
+
+function defaultSeg(type){
+  const id=segCount++;
+  const base={id,type,expanded:false};
+  if(type==='walk')return{...base,name:'步行段',L:300,th:0,Ns:0,ks:1,w:2,q:.85,S:.2,St:.2,Nl:1,Tl:.8,B:0,ns:55,A:.5,cr:0};
+  if(type==='wait')return{...base,name:'等待',T:5,sig:2,info:false,env:.5};
+  if(type==='ride')return{...base,name:'乘车',T:10,crowd:.5,seat:.5,aveh:.7,vib:.3};
+  if(type==='transfer')return{...base,name:'换乘',wl:150,st:0,lv:1,E:.8};
+  if(type==='cost')return{...base,name:'费用',cost:15};
+}
+
+function applyWalkPreset(seg,p){
+  Object.assign(seg,{L:p.L,th:p.th,Ns:p.Ns,ks:p.ks,w:p.w,q:p.q,S:p.S,St:p.St,Nl:p.Nl,Tl:p.Tl,B:p.B,ns:p.ns,A:p.A,cr:p.cr});
+}
+
+function addSeg(type,data){
+  const seg=data||defaultSeg(type);
+  tripSegs.push(seg);
+  renderTripSegs();
+  refreshTripBar();
+}
+
+function deleteSeg(id){
+  tripSegs=tripSegs.filter(s=>s.id!==id);
+  renderTripSegs();
+  refreshTripBar();
+}
+
+function clearSegs(){tripSegs=[];renderTripSegs();refreshTripBar();}
+
+function loadRoutePreset(idx){
+  tripSegs=[];
+  ROUTE_PRESETS[idx].segs.forEach(s=>{
+    const seg=defaultSeg(s.type);
+    if(s.type==='walk'&&s.p)applyWalkPreset(seg,s.p);
+    if(s.type==='wait'&&s.p)Object.assign(seg,{T:s.p.T,sig:s.p.sig,info:s.p.info,env:s.p.env});
+    if(s.type==='ride'&&s.p)Object.assign(seg,{T:s.p.T,crowd:s.p.crowd,seat:s.p.seat,aveh:s.p.aveh,vib:s.p.vib});
+    if(s.type==='transfer'&&s.p)Object.assign(seg,{wl:s.p.wl,st:s.p.st,lv:s.p.lv,E:s.p.E});
+    if(s.type==='cost')seg.cost=s.cost||15;
+    seg.name=s.name;
+    tripSegs.push(seg);
+  });
+  renderTripSegs();
+  refreshTripBar();
+}
+
+function calcSegH(seg){
+  if(seg.type==='walk')return calcWalkH(seg.L,seg.th,seg.Ns,seg.ks,seg.w,seg.q,seg.S,seg.St,seg.Nl,seg.Tl,seg.B,seg.ns,seg.A,seg.cr);
+  if(seg.type==='wait')return calcWaitH(seg.T,seg.sig,seg.info,seg.env);
+  if(seg.type==='ride')return calcRideH(seg.T,seg.crowd,seg.seat,seg.aveh,seg.vib);
+  if(seg.type==='transfer')return calcTransferH(seg.wl,seg.st,seg.lv,seg.E);
+  if(seg.type==='cost')return seg.cost*eps();
+  return 0;
+}
+
+function segSummary(seg){
+  if(seg.type==='walk')return`${seg.L}米 · 坡${seg.th}% · 平整${seg.q} · 人流${seg.cr}`;
+  if(seg.type==='wait')return`${seg.T}分钟 · σ=${seg.sig} · ${seg.info?'有':'无'}实时信息 · 环境${seg.env}`;
+  if(seg.type==='ride')return`${seg.T}分钟 · 拥挤${Math.round(seg.crowd*100)}% · 有座${Math.round(seg.seat*100)}%`;
+  if(seg.type==='transfer')return`通道${seg.wl}米 · ${seg.lv}层 · 电梯${seg.E}`;
+  if(seg.type==='cost')return`¥${seg.cost} → ${fmt(seg.cost*eps())}等效米`;
+  return '';
+}
+
+function segBodyHTML(seg){
+  const id=seg.id;
+  function sr(key,label,min,max,step,val,unit=''){
+    const dv=step<1?parseFloat(val).toFixed(2):parseInt(val);
+    return`<div class="sp"><label>${label} <span class="sp-val" id="sv_${id}_${key}">${dv}${unit}</span></label>
+      <input type="range" min="${min}" max="${max}" step="${step}" value="${val}"
+        oninput="tripUpdate(${id},'${key}',this.value,'${unit}',${step})"></div>`;
+  }
+  function sn(key,label,min,max,step,val){
+    return`<div class="sp"><label>${label}</label>
+      <input type="number" min="${min}" max="${max}" step="${step}" value="${val}"
+        oninput="tripUpdate(${id},'${key}',this.value,'',1)"></div>`;
+  }
+  function sc(key,label,val){
+    return`<div class="sp"><label>${label}</label>
+      <div class="toggle-row"><label class="toggle"><input type="checkbox" ${val?'checked':''} onchange="tripUpdateBool(${id},'${key}',this.checked)"><span class="slider-t"></span></label></div></div>`;
+  }
+  if(seg.type==='walk')return[
+    sn('L','长度（米）',0,5000,10,seg.L),
+    sr('th','坡度 θ (%)',0,20,.5,seg.th,'%'),
+    sn('Ns','台阶数（级）',0,200,1,seg.Ns),
+    sr('ks','台阶陡度 ks',.5,2,.1,seg.ks,''),
+    sr('w','有效宽度（米）',.5,6,.1,seg.w,'m'),
+    sr('q','平整度 q',0,1,.05,seg.q,''),
+    sr('S','遮蔽率 S',0,1,.05,seg.S,''),
+    sr('St','树荫覆盖',0,1,.05,seg.St,''),
+    sn('Nl','红绿灯数',0,20,1,seg.Nl),
+    sr('Tl','单次等待（分）',0,3,.1,seg.Tl,'分'),
+    sr('B','障碍物 B',0,1,.05,seg.B,''),
+    sr('ns','噪音（dB）',40,90,1,seg.ns,'dB'),
+    sr('A','无障碍设施',0,1,.05,seg.A,''),
+    sr('cr','人流拥挤附加',0,.8,.05,seg.cr,'')
+  ].join('');
+  if(seg.type==='wait')return[
+    sr('T','等待时间（分钟）',0,30,.5,seg.T,'分'),
+    sr('sig','不确定性 σ（分钟）',0,15,.5,seg.sig,'分'),
+    sc('info','有实时到站信息',seg.info),
+    sr('env','候车环境 U',0,1,.05,seg.env,'')
+  ].join('');
+  if(seg.type==='ride')return[
+    sr('T','乘车时间（分钟）',1,60,1,seg.T,'分'),
+    sr('crowd','拥挤度 C',0,1,.05,seg.crowd,''),
+    sr('seat','有座概率',0,1,.05,seg.seat,''),
+    sr('aveh','车辆无障碍',0,1,.05,seg.aveh,''),
+    sr('vib','振动 V',0,1,.05,seg.vib,'')
+  ].join('');
+  if(seg.type==='transfer')return[
+    sn('wl','通道步行（米）',0,1000,10,seg.wl),
+    sn('st','通道台阶数',0,100,1,seg.st),
+    sr('lv','楼层数',0,8,1,seg.lv,'层'),
+    sr('E','电梯可用度',0,1,.1,seg.E,'')
+  ].join('');
+  if(seg.type==='cost')return sn('cost','费用（元）',0,500,1,seg.cost);
+  return '';
+}
+
+function tripUpdate(id,key,val,unit,step){
+  const seg=tripSegs.find(s=>s.id===id);
+  if(!seg)return;
+  seg[key]=parseFloat(val)||0;
+  const dispEl=document.getElementById(`sv_${id}_${key}`);
+  if(dispEl){
+    const dv=step<1?parseFloat(val).toFixed(2):parseInt(val);
+    dispEl.textContent=dv+unit;
+  }
+  refreshSegDisplay(id);
+  refreshTripBar();
+}
+function tripUpdateBool(id,key,val){
+  const seg=tripSegs.find(s=>s.id===id);
+  if(!seg)return;
+  seg[key]=val;
+  refreshSegDisplay(id);
+  refreshTripBar();
+}
+
+function refreshSegDisplay(id){
+  const seg=tripSegs.find(s=>s.id===id);
+  if(!seg)return;
+  const hEl=document.getElementById(`seg_h_${id}`);
+  if(hEl)hEl.textContent=fmt(calcSegH(seg))+'米';
+  const sEl=document.getElementById(`seg_sum_${id}`);
+  if(sEl)sEl.textContent=segSummary(seg);
+}
+
+function toggleSegExpand(id){
+  const seg=tripSegs.find(s=>s.id===id);
+  if(!seg)return;
+  seg.expanded=!seg.expanded;
+  const body=document.getElementById(`seg_body_${id}`);
+  const btn=document.getElementById(`seg_exp_${id}`);
+  if(body)body.style.display=seg.expanded?'grid':'none';
+  if(btn)btn.textContent=seg.expanded?'▲ 收起':'▼ 展开';
+}
+
+function applySegPreset(id,val,presets){
+  if(val==='')return;
+  const idx=parseInt(val);
+  const seg=tripSegs.find(s=>s.id===id);
+  if(!seg||isNaN(idx))return;
+  const p=presets[idx];
+  if(!p)return;
+  if(seg.type==='walk'){applyWalkPreset(seg,p);seg.name=p.n;}
+  if(seg.type==='wait'){Object.assign(seg,{T:p.T,sig:p.sig,info:p.info,env:p.env});seg.name=p.n;}
+  if(seg.type==='ride'){Object.assign(seg,{T:p.T,crowd:p.crowd,seat:p.seat,aveh:p.aveh,vib:p.vib});seg.name=p.n;}
+  if(seg.type==='transfer'){Object.assign(seg,{wl:p.wl,st:p.st,lv:p.lv,E:p.E});seg.name=p.n;}
+  renderTripSegs();
+  refreshTripBar();
+}
+
+function renderTripSegs(){
+  const c=document.getElementById('trip_segs');
+  if(!c)return;
+  if(tripSegs.length===0){c.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:.9rem;">暂无路段，点击下方按钮添加或选择预设路线</div>';return;}
+  c.innerHTML=tripSegs.map(seg=>{
+    const ti=SEG_TYPE[seg.type];
+    const H=calcSegH(seg);
+    const presets=seg.type==='walk'?WALK_PRESETS:seg.type==='wait'?WAIT_PRESETS:seg.type==='ride'?RIDE_PRESETS:seg.type==='transfer'?TRANS_PRESETS:[];
+    const presetSel=presets.length?`<select class="seg-preset-sel" onchange="applySegPreset(${seg.id},this.value,${seg.type==='walk'?'WALK_PRESETS':seg.type==='wait'?'WAIT_PRESETS':seg.type==='ride'?'RIDE_PRESETS':'TRANS_PRESETS'});this.value=''" title="选择预设"><option value="">📋 预设</option>${presets.map((p,i)=>`<option value="${i}">${p.n}</option>`).join('')}</select>`:'';
+    return`<div class="seg-card" id="seg_card_${seg.id}">
+      <div class="seg-strip" style="background:${ti.color}"></div>
+      <div class="seg-content">
+        <div class="seg-header">
+          <div class="seg-badge" style="background:${ti.color}20;color:${ti.color}">${ti.icon} ${ti.label}</div>
+          <input class="seg-name" value="${seg.name}" oninput="tripSegs.find(s=>s.id==${seg.id}).name=this.value;refreshTripBar()">
+          ${presetSel}
+          <div class="seg-h" id="seg_h_${seg.id}">${fmt(H)}米</div>
+          <button class="seg-exp-btn" id="seg_exp_${seg.id}" onclick="toggleSegExpand(${seg.id})">${seg.expanded?'▲ 收起':'▼ 展开'}</button>
+          <button class="seg-del-btn" onclick="deleteSeg(${seg.id})">✕</button>
+        </div>
+        <div class="seg-summary" id="seg_sum_${seg.id}">${segSummary(seg)}</div>
+        <div class="seg-body" id="seg_body_${seg.id}" style="display:${seg.expanded?'grid':'none'}">${segBodyHTML(seg)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function refreshTripBar(){
+  const Hs=tripSegs.map(s=>calcSegH(s));
+  const total=Hs.reduce((a,b)=>a+(isFinite(b)?b:0),0);
+  document.getElementById('trip_total').textContent=fmt(total);
+  const bar=document.getElementById('trip_bar');
+  const leg=document.getElementById('trip_legend');
+  if(!bar)return;
+  if(tripSegs.length===0){bar.innerHTML='<div class="journey-empty">添加路段后显示可视化行程条</div>';leg.innerHTML='';return;}
+  bar.innerHTML=Hs.map((H,i)=>{
+    const seg=tripSegs[i];const ti=SEG_TYPE[seg.type];
+    const flex=isFinite(H)&&total>0?H/total*100:.01;
+    return`<div class="jseg-block" style="flex:${Math.max(flex,.5)};background:${ti.color}" title="${seg.name}: ${fmt(H)}米">
+      <span class="jseg-label">${seg.name}</span>
+    </div>`;
+  }).join('');
+  // legend: unique types
+  const seen=new Set();
+  leg.innerHTML=tripSegs.filter(s=>{if(seen.has(s.type))return false;seen.add(s.type);return true;}).map(s=>{
+    const ti=SEG_TYPE[s.type];
+    return`<div class="jleg"><div class="jleg-dot" style="background:${ti.color}"></div>${ti.icon}${ti.label}</div>`;
+  }).join('');
+  // update individual H displays without re-render
+  Hs.forEach((H,i)=>{
+    const el=document.getElementById(`seg_h_${tripSegs[i].id}`);
+    if(el)el.textContent=fmt(H)+'米';
+    const sel=document.getElementById(`seg_sum_${tripSegs[i].id}`);
+    if(sel)sel.textContent=segSummary(tripSegs[i]);
+  });
+}
+
+function renderRoutePresets(){
+  const c=document.getElementById('route_presets_bar');
+  if(!c)return;
+  c.innerHTML=ROUTE_PRESETS.map((r,i)=>`<button class="rp-btn" onclick="loadRoutePreset(${i})">${r.name}</button>`).join('');
+}
+
+// ============================================================
+// INDIVIDUAL CALCULATORS
+// ============================================================
+function calcWalk(){
+  const L=parseFloat(document.getElementById('wL').value)||0;
+  const th=parseFloat(document.getElementById('wtheta').value)||0;
+  const Ns=parseFloat(document.getElementById('wNstep').value)||0;
+  const w=parseFloat(document.getElementById('ww').value)||2;
+  const q=parseFloat(document.getElementById('wq').value)||.85;
+  const S=parseFloat(document.getElementById('wS').value)||0;
+  const St=parseFloat(document.getElementById('wSt').value)||0;
+  const Nl=parseFloat(document.getElementById('wNl').value)||0;
+  const Tl=parseFloat(document.getElementById('wTl').value)||.8;
+  const B=parseFloat(document.getElementById('wB').value)||0;
+  const ns=parseFloat(document.getElementById('wn').value)||55;
+  const A=parseFloat(document.getElementById('wA').value)||.5;
+  const cr=parseFloat(document.getElementById('wcr').value)||0;
+  const savedW=weather;const Hc=((w2a)=>{weather='clear';let h=calcWalkH(L,th,Ns,1,w,q,S,St,Nl,Tl,B,ns,A,cr);weather=w2a;return h;})(weather);
+  const Hr=calcWalkH(L,th,Ns,1,w,q,S,St,Nl,Tl,B,ns,A,cr);
+  document.getElementById('walk_c').textContent=fmt(Hc);
+  document.getElementById('walk_r').textContent=fmt(Hr);
+  renderBK('walk_bk',[
+    {l:'基础',v:L},{l:'坡度',v:20*(th/100)*L},{l:'狭窄',v:Math.max(0,.3/Math.max(w,.1)-.2)*L},
+    {l:'不平',v:.2*(1-q)*L},{l:'无遮蔽',v:.2*(1-S)*L},{l:'红绿灯',v:80*Tl*Nl}
+  ],Hc);
+}
+
+function calcWait(){
+  const T=parseFloat(document.getElementById('wtT').value)||0;
+  const sig=parseFloat(document.getElementById('wts').value)||0;
+  const info=document.getElementById('wt_info').checked;
+  const env=parseFloat(document.getElementById('wtu').value)||0;
+  document.getElementById('wt_info_lbl').textContent=info?'有实时信息':'无实时信息';
+  const H=calcWaitH(T,sig,info,env);
+  document.getElementById('wait_r').textContent=fmt(H);
+  renderBK('wait_bk',[{l:'等待',v:70*T},{l:'不确定',v:100*sig},{l:'无信息',v:30*(info?0:1)*T},{l:'环境',v:50*env}],H);
 }
 
 function calcOnboard(){
-  const T=parseFloat(document.getElementById('ob_T').value)||1;
-  const crowd=parseFloat(document.getElementById('ob_crowd').value)||0;
-  const seat=parseFloat(document.getElementById('ob_seat').value)||0.5;
-  const aveh=parseFloat(document.getElementById('ob_aveh').value)||0.5;
-  const vib=parseFloat(document.getElementById('ob_vib').value)||0.3;
-  const p=getPopP();
-
-  const d1=5, d2=40*p.vibMult, d3=30*p.stairMult/1.5, d4=20, d5=10*p.vibMult;
-  const rate = d1 + d2*crowd + d3*(1-seat) + d4*(1-aveh) + d5*vib;
-  const H = T * rate;
-  document.getElementById('onboard_result').textContent=fmt(H);
-  document.getElementById('onboard_rate').textContent=rate.toFixed(1);
-  renderBreakdown('onboard_breakdown',[
-    {label:'基础', val:T*d1},
-    {label:'拥挤', val:T*d2*crowd},
-    {label:'无座', val:T*d3*(1-seat)},
-    {label:'无障碍', val:T*d4*(1-aveh)},
-    {label:'振动', val:T*d5*vib}
-  ], H);
+  const T=parseFloat(document.getElementById('obT').value)||1;
+  const C=parseFloat(document.getElementById('obC').value)||0;
+  const S=parseFloat(document.getElementById('obS').value)||.5;
+  const A=parseFloat(document.getElementById('obA').value)||.6;
+  const V=parseFloat(document.getElementById('obV').value)||.4;
+  const p=pp();
+  const d1=5,d2=40*p.vm,d3=30,d4=20,d5=10*p.vm;
+  const rate=d1+d2*C+d3*(1-S)+d4*(1-A)+d5*V;
+  const H=T*rate;
+  document.getElementById('ob_r').textContent=fmt(H);
+  document.getElementById('ob_rate').textContent=rate.toFixed(1);
+  renderBK('ob_bk',[{l:'基础',v:T*d1},{l:'拥挤',v:T*d2*C},{l:'无座',v:T*d3*(1-S)},{l:'无障碍',v:T*d4*(1-A)},{l:'振动',v:T*d5*V}],H);
 }
 
-// ============================================================
-// Transfer calculation
-// ============================================================
+const obPresets={mp:{T:15,C:.3,S:.7,A:.9,V:.1},mh:{T:15,C:.85,S:.2,A:.9,V:.1},bp:{T:20,C:.3,S:.6,A:.5,V:.4},bh:{T:20,C:.8,S:.2,A:.5,V:.5},tx:{T:9,C:0,S:1,A:.5,V:.1}};
+function applyObPreset(){
+  const p=obPresets[document.getElementById('ob_pre').value];if(!p)return;
+  document.getElementById('obT').value=p.T;syncD(document.getElementById('obT'),'d_obT');
+  document.getElementById('obC').value=p.C;syncD(document.getElementById('obC'),'d_obC');
+  document.getElementById('obS').value=p.S;syncD(document.getElementById('obS'),'d_obS');
+  document.getElementById('obA').value=p.A;syncD(document.getElementById('obA'),'d_obA');
+  document.getElementById('obV').value=p.V;syncD(document.getElementById('obV'),'d_obV');
+  calcOnboard();
+}
+
 function calcTransfer(){
-  const walkLen=parseFloat(document.getElementById('tr_walk').value)||0;
-  const steps=parseFloat(document.getElementById('tr_steps').value)||0;
-  const level=parseFloat(document.getElementById('tr_level').value)||0;
-  const E=parseFloat(document.getElementById('tr_E').value)||0.8;
-  const count=parseFloat(document.getElementById('tr_count').value)||1;
-
-  // walk in transfer passage (simplified: no slope, q=0.85, S=0)
-  const H_walk_trans = calcWalkInTransfer(walkLen, steps);
-  const n2=50, n3=200, n1=15; // per level
-  const vertCost = level * n1;
-  const elvPenalty = n2*(1-E);
-  const psycho = n3;
-  const single = H_walk_trans + vertCost + elvPenalty + psycho;
-  const total = single * count;
-  document.getElementById('transfer_single').textContent=fmt(single);
-  document.getElementById('transfer_total').textContent=fmt(total);
-  renderBreakdown('transfer_breakdown',[
-    {label:'通道步行', val:H_walk_trans},
-    {label:'楼层垂直', val:vertCost},
-    {label:'无电梯', val:elvPenalty},
-    {label:'心理惩罚', val:psycho}
-  ], single);
-}
-
-function calcWalkInTransfer(L, steps){
-  const p=getPopP();
-  let dstep = 1.5*steps; if(p.stairMult>=999 && steps>0) return Infinity;
-  dstep*=p.stairMult;
-  return L + dstep;
+  const wl=parseFloat(document.getElementById('tr_w').value)||0;
+  const st=parseFloat(document.getElementById('tr_s').value)||0;
+  const lv=parseFloat(document.getElementById('trN').value)||0;
+  const E=parseFloat(document.getElementById('trE').value)||.8;
+  const cnt=parseFloat(document.getElementById('tr_c').value)||1;
+  const Hs=calcTransferH(wl,st,lv,E);
+  document.getElementById('tr_s_r').textContent=fmt(Hs);
+  document.getElementById('tr_t_r').textContent=fmt(Hs*cnt);
+  renderBK('tr_bk',[{l:'步行',v:wl+1.5*st},{l:'楼层',v:15*lv},{l:'无电梯',v:50*(1-E)},{l:'心理',v:200}],Hs);
 }
 
 // ============================================================
-// Compare tab - dynamic routes
+// COMPARE TAB
 // ============================================================
-let routeCount=0;
-const routeData=[];
-
-function addRoute(){
-  const id=routeCount++;
-  routeData.push({id, name:`方案${id+1}`, access:300, waitT:5, waitSig:2, info:false, env:0.5,
-    travelT:10, crowd:0.5, seat:0.5, aveh:0.7, vib:0.3,
-    transWalk:100, transLevel:1, transE:0.8, transCount:0, cost:0});
-  renderRouteInputs();
-  recalcCompare();
+let cmpRoutes=[],cmpCount=0;
+function addCmpRoute(data){
+  const id=cmpCount++;
+  cmpRoutes.push(data||{id,name:`方案${id+1}`,access:300,waitT:5,waitSig:2,info:false,env:.5,tT:10,crowd:.5,seat:.5,aveh:.7,vib:.3,transWalk:100,transLevel:1,transE:.8,transCount:0,cost:0});
+  renderCmpRoutes();recalcCmp();
 }
-
-function removeRoute(id){
-  const idx=routeData.findIndex(r=>r.id===id);
-  if(idx>=0) routeData.splice(idx,1);
-  renderRouteInputs();
-  recalcCompare();
-}
-
-function renderRouteInputs(){
-  const c=document.getElementById('routes-container');
-  c.innerHTML=routeData.map(r=>`
-    <div class="card" style="margin-bottom:12px;border:1.5px solid var(--border);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <input type="text" value="${r.name}" onchange="routeData.find(x=>x.id==${r.id}).name=this.value;recalcCompare()"
-          style="font-weight:700;font-size:1rem;border:none;outline:none;background:transparent;width:120px;">
-        <button onclick="removeRoute(${r.id})" style="border:none;background:none;color:var(--accent);cursor:pointer;font-size:1.1rem;">✕</button>
+function removeCmpRoute(id){cmpRoutes=cmpRoutes.filter(r=>r.id!==id);renderCmpRoutes();recalcCmp();}
+function renderCmpRoutes(){
+  const c=document.getElementById('cmp_routes');
+  c.innerHTML=cmpRoutes.map(r=>`
+    <div class="card" style="margin-bottom:10px;border:1.5px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <input value="${r.name}" onchange="cmpRoutes.find(x=>x.id==${r.id}).name=this.value;recalcCmp()" style="font-weight:700;font-size:.95rem;border:none;outline:none;background:transparent;">
+        <button onclick="removeCmpRoute(${r.id})" style="border:none;background:none;color:var(--red);cursor:pointer;font-size:1rem;">✕</button>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
-        ${routeField(r,'access','接近段步行(米)',0,2000,50,'number')}
-        ${routeField(r,'waitT','等待时间(分)',0,30,2,'number')}
-        ${routeField(r,'waitSig','等待σ(分)',0,15,1,'number')}
-        ${routeFieldCheck(r,'info','有实时信息')}
-        ${routeField(r,'env','候车环境',0,1,0.1,'range')}
-        ${routeField(r,'travelT','乘车时间(分)',0,60,5,'number')}
-        ${routeField(r,'crowd','拥挤度',0,1,0.1,'range')}
-        ${routeField(r,'seat','有座概率',0,1,0.1,'range')}
-        ${routeField(r,'transCount','换乘次数',0,5,1,'number')}
-        ${routeField(r,'cost','费用(元)',0,200,5,'number')}
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;">
+        <div><label style="font-size:.75rem;font-weight:600;color:var(--muted);">接近步行(米)</label><input type="number" value="${r.access}" oninput="cmpRoutes.find(x=>x.id==${r.id}).access=+this.value;recalcCmp()" style="width:100%;padding:5px;border:1.5px solid var(--border);border-radius:6px;font-size:.85rem;"></div>
+        <div><label style="font-size:.75rem;font-weight:600;color:var(--muted);">等待时间(分)</label><input type="number" value="${r.waitT}" oninput="cmpRoutes.find(x=>x.id==${r.id}).waitT=+this.value;recalcCmp()" style="width:100%;padding:5px;border:1.5px solid var(--border);border-radius:6px;font-size:.85rem;"></div>
+        <div><label style="font-size:.75rem;font-weight:600;color:var(--muted);">乘车时间(分)</label><input type="number" value="${r.tT}" oninput="cmpRoutes.find(x=>x.id==${r.id}).tT=+this.value;recalcCmp()" style="width:100%;padding:5px;border:1.5px solid var(--border);border-radius:6px;font-size:.85rem;"></div>
+        <div><label style="font-size:.75rem;font-weight:600;color:var(--muted);">换乘次数</label><input type="number" value="${r.transCount}" oninput="cmpRoutes.find(x=>x.id==${r.id}).transCount=+this.value;recalcCmp()" style="width:100%;padding:5px;border:1.5px solid var(--border);border-radius:6px;font-size:.85rem;"></div>
+        <div><label style="font-size:.75rem;font-weight:600;color:var(--muted);">费用(元)</label><input type="number" value="${r.cost}" oninput="cmpRoutes.find(x=>x.id==${r.id}).cost=+this.value;recalcCmp()" style="width:100%;padding:5px;border:1.5px solid var(--border);border-radius:6px;font-size:.85rem;"></div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
-
-function routeField(r, key, label, min, max, step, type){
-  const v=r[key];
-  const inp = type==='range'
-    ? `<input type="range" min="${min}" max="${max}" step="${step}" value="${v}"
-        oninput="routeData.find(x=>x.id==${r.id}).${key}=parseFloat(this.value);recalcCompare()"
-        style="width:100%;accent-color:var(--primary);">`
-    : `<input type="number" min="${min}" max="${max}" step="${step}" value="${v}"
-        oninput="routeData.find(x=>x.id==${r.id}).${key}=parseFloat(this.value)||0;recalcCompare()"
-        style="width:100%;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:.85rem;">`;
-  return `<div><label style="font-size:.78rem;font-weight:600;color:var(--muted);">${label}</label>${inp}</div>`;
+function cmpRouteH(r){
+  const Hacc=r.access*(weather==='clear'?1:wp().lam*1.1);
+  const Hwait=calcWaitH(r.waitT,r.waitSig,r.info,r.env);
+  const Hob=calcRideH(r.tT,r.crowd,r.seat,r.aveh,r.vib);
+  const Htr=r.transCount*calcTransferH(r.transWalk,0,r.transLevel,r.transE);
+  const Hcost=eps()*r.cost;
+  return{total:Hacc+Hwait+Hob+Htr+Hcost,parts:{acc:Hacc,wait:Hwait,ob:Hob,tr:Htr,cost:Hcost}};
 }
-
-function routeFieldCheck(r, key, label){
-  return `<div style="display:flex;flex-direction:column;justify-content:flex-end;">
-    <label style="font-size:.78rem;font-weight:600;color:var(--muted);">${label}</label>
-    <label class="toggle" style="margin-top:4px;"><input type="checkbox" ${r[key]?'checked':''}
-      onchange="routeData.find(x=>x.id==${r.id}).${key}=this.checked;recalcCompare()"><span class="slider-t"></span></label>
-  </div>`;
-}
-
-function calcRouteH(r){
-  const eps=getEps();
-  const wp=getWeatherP();
-  const pp=getPopP();
-
-  // access walk (simplified)
-  const Haccess = r.access * (weather==='clear' ? 1 : wp.lambda * 1.1);
-
-  // wait
-  const g1=70,g2=100,g3=30,g4=50;
-  let T2=r.waitT, sig2=r.waitSig;
-  if(weather!=='clear'){ sig2*=1.3; }
-  const Hwait = g1*T2 + g2*sig2 + g3*(r.info?0:1)*T2 + g4*r.env;
-
-  // onboard
-  const d1=5,d2=40*pp.vibMult,d3=30,d4=20,d5=10*pp.vibMult;
-  const rate = d1 + d2*r.crowd + d3*(1-r.seat) + d4*(1-r.aveh) + d5*r.vib;
-  const Honboard = r.travelT * rate;
-
-  // transfer
-  const Htransfer = r.transCount * (r.transWalk + 15*r.transLevel + 50*(1-r.transE) + 200);
-
-  // cost
-  const Hcost = eps * r.cost;
-
-  return {total: Haccess+Hwait+Honboard+Htransfer+Hcost,
-    parts:{access:Haccess,wait:Hwait,onboard:Honboard,transfer:Htransfer,cost:Hcost}};
-}
-
-function recalcCompare(){
-  if(routeData.length===0){
-    document.getElementById('compare_ranking').innerHTML='<p style="color:var(--muted);font-size:.88rem;">请先添加方案</p>';
-    return;
-  }
-  const results=routeData.map(r=>({...r, ...calcRouteH(r)}));
-  results.sort((a,b)=>a.total-b.total);
-
-  const rankEl=document.getElementById('compare_ranking');
-  rankEl.innerHTML=results.map((r,i)=>{
-    const cls=i===0?'best':i===results.length-1?'worst':'';
-    const rb=i<3?`rank-${i+1}`:'rank-n';
-    return `<div class="route-item ${cls}">
-      <span class="rank-badge ${rb}">${i+1}</span>
-      <span class="route-name">${r.name}</span>
-      <span class="route-score">${fmt(r.total)}</span>
-      <div class="route-meta">接近${fmt(r.parts.access)} + 等待${fmt(r.parts.wait)} + 车内${fmt(r.parts.onboard)} + 换乘${fmt(r.parts.transfer)} + 费用${fmt(r.parts.cost)}</div>
-    </div>`;
-  }).join('');
-
-  // chart
-  const labels=results.map(r=>r.name);
-  const datasets=[
-    {label:'接近步行',data:results.map(r=>Math.round(r.parts.access)),backgroundColor:'#4c6ef5'},
-    {label:'等待',data:results.map(r=>Math.round(r.parts.wait)),backgroundColor:'#f03e3e'},
-    {label:'车内',data:results.map(r=>Math.round(r.parts.onboard)),backgroundColor:'#2f9e44'},
-    {label:'换乘',data:results.map(r=>Math.round(r.parts.transfer)),backgroundColor:'#e67700'},
-    {label:'经济成本',data:results.map(r=>Math.round(r.parts.cost)),backgroundColor:'#7950f2'},
-  ];
-  if(compareChart) compareChart.destroy();
-  compareChart=new Chart(document.getElementById('compareChart'),{
-    type:'bar',
-    data:{labels,datasets},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},
-      scales:{x:{stacked:true},y:{stacked:true,title:{display:true,text:'等效米'}}}}
-  });
-}
-
-// ============================================================
-// Case study: Shanghai People's Square
-// ============================================================
-function getCaseData(){
-  const wp=getWeatherP();
-  const pp=getPopP();
-  const eps=getEps();
-  const eta3=200;
-
-  // Base data per route (晴天 reference values from paper, adjusted by current params)
-  // We recalculate with current weather/population scaling
-  const sv_eps=parseFloat(document.getElementById('sv_eps_slider')?document.getElementById('sv_eps_slider').value:120);
-
-  function walkH(L, theta, Nstep, q, S, Stree, crowd, A){
-    const p=pp;
-    const a1=20,a2=1.5,a4=0.2,a5=0.2,bshade=0.05,a7=0,a9=0.05;
-    if(p.stairMult>=999 && Nstep>0) return Infinity;
-    const base = L + a1*(theta/100)*L + a2*1.0*Nstep*p.stairMult + a4*(1-q)*L + a5*(1-S)*L - bshade*Stree*L + crowd*L - a9*A*L;
-    if(weather==='clear') return base;
-    const dWet=wp.alpha_slip*(1-q)*L;
-    const dVis=wp.alpha_vis*L;
-    let lam=wp.lambda;
-    if(S>=0.8) lam=Math.max(1,lam-0.2);
-    if(pp.stairMult>=999||pp.stairMult>=2) lam*=1.1;
-    return lam*base+dWet+dVis;
-  }
-
-  function waitH(T, sig, hasInfo, env){
-    const wp2=getWeatherP();
-    let T2=T, sig2=sig, env2=env;
-    if(weather!=='clear'){ sig2*=1.3; }
-    return 70*T2 + 100*sig2 + 30*(hasInfo?0:1)*T2 + 50*env2;
-  }
-
-  function onboardH(T,crowd,seat,aveh,vib){
-    const d1=5,d2=40*pp.vibMult,d3=30,d4=20,d5=10*pp.vibMult;
-    return T*(d1+d2*crowd+d3*(1-seat)+d4*(1-aveh)+d5*vib);
-  }
-
-  const e = eps;
-
-  // Route 6: Jiujiang Rd direct (best clear)
-  const r6 = {name:'方案6 九江路直行', desc:'纯步行1600米', mode:'步行',
-    H: walkH(1600,0,0,0.80,0.1,0.7,0,0.4)};
-
-  // Route 4: Metro through station 20 exit
-  const r4_access = walkH(300,0,0,0.85,0.3,0,0,0.5);
-  const r4_wait = waitH(2,0.5,true,0); // metro
-  const r4_onboard = 0; // just walk through station
-  const r4_egress = walkH(200,0,0,0.80,0.5,0,0,0.5);
-  const r4_elev = pp.stairMult>=999 ? 0 : 50*(1-0.8);
-  const r4_transfer = 200 + r4_elev; // 1 transfer equivalent
-  const r4 = {name:'方案4 地铁穿行20号口', desc:'地铁站内+步行', mode:'地铁',
-    H: r4_access + r4_wait + r4_onboard + r4_egress + r4_transfer};
-
-  // Route 3: Metro line 2 one stop
-  const r3_access = walkH(450,0,0,0.85,0.3,0,0,0.5);
-  const r3_wait = waitH(2.5,0.5,true,0);
-  const r3_onboard = onboardH(3, 0.7, 0.3, 0.9, 0.1);
-  const r3_egress = walkH(120,0,0,0.85,0.3,0,0,0.6);
-  const r3_transfer = 0; // no transfer
-  const r3 = {name:'方案3 地铁2号线', desc:'地铁+步行，步行570米', mode:'地铁',
-    H: r3_access+r3_wait+r3_onboard+r3_egress+r3_transfer};
-
-  // Route 5: Bus 49
-  const r5_access = walkH(350,0,0,0.80,0.1,0,0,0.3);
-  const r5_wait = waitH(7,4,false,0.7);
-  const r5_onboard = onboardH(8, 0.6, 0.3, 0.5, 0.5);
-  const r5_egress = walkH(180,0,0,0.75,0.1,0,0,0.4);
-  const r5 = {name:'方案5 49路公交', desc:'公交+步行，步行530米', mode:'公交',
-    H: r5_access+r5_wait+r5_onboard+r5_egress};
-
-  // Route 2: South network
-  const r2 = {name:'方案2 南线支路', desc:'纯步行1500米', mode:'步行',
-    H: walkH(140,0,0,0.85,0.1,0,0,0.5)+walkH(380,0,0,0.70,0.1,0,0,0.3)+walkH(250,0,0,0.70,0.1,0,0,0.3)+walkH(250,0,0,0.75,0.1,0,0,0.3)+walkH(480,0,0,0.75,0.1,0,0,0.4)};
-
-  // Route 1: Nanjing Rd pedestrian street
-  const r1_common = walkH(200,0,0,0.90,0.5,0,0,0.8)+walkH(450,0,0,0.85,0.3,0,0,0.5);
-  const r1_nanking = walkH(1033,0,0,0.90,0.3,0,0.3,0.7); // crowd=0.3
-  const r1_end = walkH(417,0,0,0.80,0.1,0,0,0.4);
-  const r1 = {name:'方案1 南京路步行街', desc:'纯步行1900米', mode:'步行',
-    H: r1_common+r1_nanking+r1_end};
-
-  // Route T: Taxi
-  let tWait=4, tSig=2, tEnv=0.3, tT=9, tCost=16;
-  if(weather==='light'){tWait=6;tSig=2.5;tEnv=0.5;tT=10;tCost=18;}
-  if(weather==='moderate'){tWait=12;tSig=4;tEnv=0.7;tT=13;tCost=26;}
-  if(weather==='heavy'){tWait=20;tSig=6;tEnv=0.9;tT=16;tCost=36;}
-  const rT_access = weather==='clear'?30:45;
-  const rT_wait = waitH(tWait,tSig,true,tEnv);
-  const rT_onboard = onboardH(tT,0,1,pp.stairMult>=999?0.2:0.5,0.1);
-  const rT_cost = e*tCost;
-  const rT = {name:'方案T 出租车', desc:'门到门约2km', mode:'出租车',
-    H: rT_access+rT_wait+rT_onboard+rT_cost};
-
-  return [r6,r4,r3,r5,r2,r1,rT].sort((a,b)=>a.H-b.H);
-}
-
-function renderCase(){
-  const data=getCaseData();
-  const labels=data.map(r=>r.name.substring(3));
-  const vals=data.map(r=>Math.round(r.H));
-  const colors=data.map((_,i)=>i===0?'#2f9e44':i===data.length-1?'#f03e3e':'#4c6ef5');
-
-  if(caseBarChart) caseBarChart.destroy();
-  caseBarChart=new Chart(document.getElementById('caseBarChart'),{
-    type:'bar',
-    data:{labels,datasets:[{label:'总困难度（等效米）',data:vals,backgroundColor:colors}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false}},
-      scales:{x:{title:{display:true,text:'等效米'}}}}
-  });
-
-  const rankEl=document.getElementById('case_ranking');
-  rankEl.innerHTML=data.map((r,i)=>{
-    const cls=i===0?'best':i===data.length-1?'worst':'';
-    const rb=i<3?`rank-${i+1}`:'rank-n';
-    return `<div class="route-item ${cls}" style="cursor:default;">
-      <span class="rank-badge ${rb}">${i+1}</span>
-      <span class="route-name">${r.name}</span>
-      <span class="route-score">${fmt(r.H)}</span>
-      <div class="route-meta">${r.desc} · ${r.mode}</div>
-    </div>`;
-  }).join('');
-
-  renderImprove();
-}
-
-function renderImprove(){
-  // Before/after data (approximate, from paper Table)
-  const before_clear=[1470,1620,1990,2200,2220,2590,2500];
-  const after_clear= [1350,1620,1990,2020,1860,2440,2500];
-  const before_rain= [2320,1700,2060,2760,2970,3920,4525];
-  const after_rain=  [2050,1650,2060,2500,2480,3700,4525];
-  const names=['方案6','方案4','方案3','方案5','方案2','方案1','方案T'];
-
-  if(caseImproveChart) caseImproveChart.destroy();
-  const isRain=weather!=='clear';
-  caseImproveChart=new Chart(document.getElementById('caseImproveChart'),{
-    type:'bar',
-    data:{labels:names,datasets:[
-      {label:`改造前（${isRain?'雨天':'晴天'}）`,data:isRain?before_rain:before_clear,backgroundColor:'rgba(240,62,62,0.7)'},
-      {label:`改造后（${isRain?'雨天':'晴天'}）`,data:isRain?after_rain:after_clear,backgroundColor:'rgba(47,158,68,0.7)'},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top'}},
-      scales:{y:{title:{display:true,text:'等效米'}}}}
-  });
-}
-
-// ============================================================
-// Sensitivity analysis
-// ============================================================
-function renderSensitivity(){
-  const sv_eps=parseFloat(document.getElementById('sv_eps_slider').value);
-  const sv_d2=parseFloat(document.getElementById('sv_delta2_slider').value);
-  const sv_eta3=parseFloat(document.getElementById('sv_eta3_slider').value);
-  const sv_rain=parseFloat(document.getElementById('sv_rain_slider').value);
-  const sv_a1=parseFloat(document.getElementById('sv_alpha1_slider').value);
-
-  // Recalc simplified case data with sensitivity params overrides
-  function calcSens(){
-    const pp=getPopP();
-    function wH(L,theta,Nstep,q,S,Stree,crowd,A){
-      if(pp.stairMult>=999 && Nstep>0) return Infinity;
-      const base = L + sv_a1*(theta/100)*L + 1.5*Nstep*pp.stairMult + 0.2*(1-q)*L + 0.2*(1-S)*L - 0.05*Stree*L + crowd*L - 0.05*A*L;
-      if(weather==='clear') return base;
-      const wp=weatherParams[weather];
-      const dWet=wp.alpha_slip*(1-q)*L;
-      const dVis=wp.alpha_vis*L;
-      let lam=sv_rain;
-      if(S>=0.8) lam=Math.max(1,lam-0.2);
-      return lam*base+dWet+dVis;
-    }
-    function wtH(T,sig,hasInfo,env){
-      return 70*T+100*sig+30*(hasInfo?0:1)*T+50*env;
-    }
-    function obH(T,crowd,seat,aveh,vib){
-      return T*(5+sv_d2*crowd+30*(1-seat)+20*(1-aveh)+10*vib);
-    }
-
-    const e=sv_eps;
-    const r6=wH(1600,0,0,0.80,0.1,0.7,0,0.4);
-    const r4=wH(300,0,0,0.85,0.3,0,0,0.5)+wtH(2,0.5,true,0)+wH(200,0,0,0.80,0.5,0,0,0.5)+(200+50*0.2+sv_eta3);
-    const r3=wH(450,0,0,0.85,0.3,0,0,0.5)+wtH(2.5,0.5,true,0)+obH(3,0.7,0.3,0.9,0.1)+wH(120,0,0,0.85,0.3,0,0,0.6);
-    const r5=wH(350,0,0,0.80,0.1,0,0,0.3)+wtH(7,4,false,0.7)+obH(8,0.6,0.3,0.5,0.5)+wH(180,0,0,0.75,0.1,0,0,0.4);
-    const r2=wH(140,0,0,0.85,0.1,0,0,0.5)+wH(380,0,0,0.70,0.1,0,0,0.3)+wH(250,0,0,0.70,0.1,0,0,0.3)+wH(250,0,0,0.75,0.1,0,0,0.3)+wH(480,0,0,0.75,0.1,0,0,0.4);
-    const r1=wH(200,0,0,0.90,0.5,0,0,0.8)+wH(450,0,0,0.85,0.3,0,0,0.5)+wH(1033,0,0,0.90,0.3,0,0.3,0.7)+wH(417,0,0,0.80,0.1,0,0,0.4);
-    let tCost=16; if(weather==='moderate') tCost=26; if(weather==='heavy') tCost=36;
-    const rT=30+wtH(4,2,true,0.3)+obH(9,0,1,0.5,0.1)+e*tCost;
-
-    return [{name:'方案6',H:r6},{name:'方案4',H:r4},{name:'方案3',H:r3},
-            {name:'方案5',H:r5},{name:'方案2',H:r2},{name:'方案1',H:r1},{name:'方案T',H:rT}]
-      .sort((a,b)=>a.H-b.H);
-  }
-
-  const res=calcSens();
-  const rankEl=document.getElementById('sens_ranking');
-  rankEl.innerHTML=res.map((r,i)=>{
+function recalcCmp(){
+  if(!cmpRoutes.length){document.getElementById('cmp_ranking').innerHTML='<p style="color:var(--muted);font-size:.85rem;">请先添加方案</p>';return;}
+  const res=cmpRoutes.map(r=>({...r,...cmpRouteH(r)})).sort((a,b)=>a.total-b.total);
+  document.getElementById('cmp_ranking').innerHTML=res.map((r,i)=>{
     const cls=i===0?'best':i===res.length-1?'worst':'';
-    const rb=i<3?`rank-${i+1}`:'rank-n';
-    return `<div class="route-item ${cls}" style="cursor:default;padding:8px 12px;">
-      <span class="rank-badge ${rb}">${i+1}</span>
-      <span class="route-name" style="font-size:.88rem;">${r.name}</span>
-      <span class="route-score" style="font-size:1.1rem;">${fmt(r.H)}</span>
-    </div>`;
+    const rb=i<3?`r${i+1}`:'rn2';
+    return`<div class="ri ${cls}"><span class="rb ${rb}">${i+1}</span><span class="rn">${r.name}</span><span class="rs">${fmt(r.total)}</span><div class="rm">接近${fmt(r.parts.acc)}+等待${fmt(r.parts.wait)}+车内${fmt(r.parts.ob)}+换乘${fmt(r.parts.tr)}+费用${fmt(r.parts.cost)}</div></div>`;
   }).join('');
-
-  if(sensitivityChart) sensitivityChart.destroy();
-  sensitivityChart=new Chart(document.getElementById('sensitivityChart'),{
-    type:'bar',data:{
-      labels:res.map(r=>r.name),
-      datasets:[{label:'总困难度（等效米）',data:res.map(r=>Math.round(r.H)),
-        backgroundColor:res.map((_,i)=>i===0?'#2f9e44':i===res.length-1?'#f03e3e':'#748ffc')}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{y:{title:{display:true,text:'等效米'}}}}
-  });
+  const labels=res.map(r=>r.name);
+  if(cmpChart)cmpChart.destroy();
+  cmpChart=new Chart(document.getElementById('cmpChart'),{type:'bar',data:{labels,datasets:[
+    {label:'接近',data:res.map(r=>Math.round(r.parts.acc)),backgroundColor:'#4c6ef5'},
+    {label:'等待',data:res.map(r=>Math.round(r.parts.wait)),backgroundColor:'#f03e3e'},
+    {label:'车内',data:res.map(r=>Math.round(r.parts.ob)),backgroundColor:'#2f9e44'},
+    {label:'换乘',data:res.map(r=>Math.round(r.parts.tr)),backgroundColor:'#e67700'},
+    {label:'费用',data:res.map(r=>Math.round(r.parts.cost)),backgroundColor:'#7950f2'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,title:{display:true,text:'等效米'}}}}});
 }
 
 // ============================================================
-// Master recalc
+// CASE STUDY
+// ============================================================
+function getCaseResults(){
+  function wH(L,th,q,S,St,cr,A,Ns){return calcWalkH(L,th,Ns||0,1,2,q,S,St,0,0,0,55,A,cr);}
+  function wt(T,sig,info,env){return calcWaitH(T,sig,info,env);}
+  function ob(T,crowd,seat,aveh,vib){return calcRideH(T,crowd,seat,aveh,vib);}
+  const e=eps();
+  const r6=wH(200,0,.9,.5,0,0,.8)+wH(450,0,.85,.3,.2,.2,.5)+wH(1150,0,.8,.1,.7,.1,.4);
+  const r4=wH(300,0,.85,.3,.2,.15,.5)+calcTransferH(200,0,2,.8)+wH(1150,0,.8,.1,.7,.1,.4);
+  const r3=wH(450,0,.85,.3,.2,.2,.5)+wt(2.5,.5,true,0)+ob(3,.7,.3,.9,.1)+wH(120,0,.85,.3,0,.1,.6);
+  const r5=wH(350,0,.8,.1,0,.1,.3)+wt(7,4,false,.7)+ob(8,.6,.3,.5,.5)+wH(180,0,.75,.1,0,.05,.4);
+  const r2=wH(140,0,.85,.1,0,.1,.5)+wH(380,0,.7,.1,.1,.05,.3)+wH(250,0,.7,.1,0,.05,.3)+wH(250,0,.75,.1,0,.05,.3)+wH(480,0,.75,.1,0,.1,.4);
+  const r1=wH(200,0,.9,.5,0,0,.8)+wH(450,0,.85,.3,.2,.2,.5)+wH(1033,0,.9,.3,0,.3,.7)+wH(417,0,.8,.1,0,.15,.4);
+  let tw=4,ts=2,te=.3,tt=9,tc=16;
+  if(weather==='light'){tw=6;ts=2.5;te=.5;tt=10;tc=18;}
+  if(weather==='moderate'){tw=12;ts=4;te=.7;tt=13;tc=26;}
+  if(weather==='heavy'){tw=20;ts=6;te=.9;tt=16;tc=36;}
+  const rT=(weather==='clear'?30:45)+wt(tw,ts,true,te)+ob(tt,0,1,.5,.1)+e*tc;
+  return[
+    {name:'方案6 九江路',H:r6},{name:'方案4 地铁20口',H:r4},{name:'方案3 地铁2号线',H:r3},
+    {name:'方案5 49路公交',H:r5},{name:'方案2 南线支路',H:r2},{name:'方案1 南京路',H:r1},{name:'方案T 出租车',H:rT}
+  ].sort((a,b)=>a.H-b.H);
+}
+function renderCase(){
+  const data=getCaseResults();
+  if(caseChart)caseChart.destroy();
+  caseChart=new Chart(document.getElementById('caseChart'),{type:'bar',data:{
+    labels:data.map(r=>r.name.substring(3)),
+    datasets:[{label:'总困难度',data:data.map(r=>Math.round(r.H)),backgroundColor:data.map((_,i)=>i===0?'#2f9e44':i===data.length-1?'#f03e3e':'#748ffc')}]
+  },options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'等效米'}}}}});
+  const labels=['方案6','方案4','方案3','方案5','方案2','方案1','方案T'];
+  const bc=[1470,1620,1990,2200,2220,2590,2500],ac=[1350,1620,1990,2020,1860,2440,2500];
+  const br=[2320,1700,2060,2760,2970,3920,4525],ar=[2050,1650,2060,2500,2480,3700,4525];
+  const isR=weather!=='clear';
+  if(improveChart)improveChart.destroy();
+  improveChart=new Chart(document.getElementById('improveChart'),{type:'bar',data:{labels,datasets:[
+    {label:`改造前(${isR?'雨天':'晴天'})`,data:isR?br:bc,backgroundColor:'rgba(240,62,62,.7)'},
+    {label:`改造后(${isR?'雨天':'晴天'})`,data:isR?ar:ac,backgroundColor:'rgba(47,158,68,.7)'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'等效米'}}}}});
+  document.getElementById('case_ranking').innerHTML=data.map((r,i)=>{
+    const cls=i===0?'best':i===data.length-1?'worst':'';
+    const rb=i<3?`r${i+1}`:'rn2';
+    return`<div class="ri ${cls}" style="cursor:default;"><span class="rb ${rb}">${i+1}</span><span class="rn">${r.name}</span><span class="rs">${fmt(r.H)}</span></div>`;
+  }).join('');
+}
+
+// ============================================================
+// SENSITIVITY
+// ============================================================
+function renderSens(){
+  const sve=parseFloat(document.getElementById('sv_eps').value);
+  const svd2=parseFloat(document.getElementById('sv_d2').value);
+  const sveta=parseFloat(document.getElementById('sv_eta3').value);
+  const svr=parseFloat(document.getElementById('sv_rain').value);
+  const sva=parseFloat(document.getElementById('sv_a1').value);
+  function wHs(L,th,q,S,St,cr,A){
+    const base=L+sva*(th/100)*L+.2*(1-q)*L+.2*(1-S)*L-.05*St*L+cr*L-.05*A*L;
+    if(weather==='clear')return base;
+    let lam=svr;if(S>=.8)lam=Math.max(1,lam-.2);
+    return lam*base+wp().slip*(1-q)*L+wp().vis*L;
+  }
+  function obS(T,crowd,seat,aveh,vib){return T*(5+svd2*crowd+30*(1-seat)+20*(1-aveh)+10*vib);}
+  function trS(wl,lv,E){return wl+15*lv+50*(1-E)+sveta;}
+  const e=sve;
+  const r6=wHs(200,0,.9,.5,0,0,.8)+wHs(450,0,.85,.3,.2,.2,.5)+wHs(1150,0,.8,.1,.7,.1,.4);
+  const r4=wHs(300,0,.85,.3,.2,.15,.5)+trS(200,2,.8)+wHs(1150,0,.8,.1,.7,.1,.4);
+  const r3=wHs(450,0,.85,.3,.2,.2,.5)+calcWaitH(2.5,.5,true,0)+obS(3,.7,.3,.9,.1)+wHs(120,0,.85,.3,0,.1,.6);
+  const r5=wHs(350,0,.8,.1,0,.1,.3)+calcWaitH(7,4,false,.7)+obS(8,.6,.3,.5,.5)+wHs(180,0,.75,.1,0,.05,.4);
+  const r2=wHs(140,0,.85,.1,0,.1,.5)+wHs(380,0,.7,.1,.1,.05,.3)+wHs(250,0,.7,.1,0,.05,.3)+wHs(250,0,.75,.1,0,.05,.3)+wHs(480,0,.75,.1,0,.1,.4);
+  const r1=wHs(200,0,.9,.5,0,0,.8)+wHs(450,0,.85,.3,.2,.2,.5)+wHs(1033,0,.9,.3,0,.3,.7)+wHs(417,0,.8,.1,0,.15,.4);
+  let tc=weather==='moderate'?26:weather==='heavy'?36:16;
+  const rT=30+calcWaitH(4,2,true,.3)+obS(9,0,1,.5,.1)+e*tc;
+  const res=[{n:'方案6',H:r6},{n:'方案4',H:r4},{n:'方案3',H:r3},{n:'方案5',H:r5},{n:'方案2',H:r2},{n:'方案1',H:r1},{n:'方案T',H:rT}].sort((a,b)=>a.H-b.H);
+  if(sensChart)sensChart.destroy();
+  sensChart=new Chart(document.getElementById('sensChart'),{type:'bar',data:{
+    labels:res.map(r=>r.n),
+    datasets:[{label:'总困难度',data:res.map(r=>Math.round(r.H)),backgroundColor:res.map((_,i)=>i===0?'#2f9e44':i===res.length-1?'#f03e3e':'#748ffc')}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'等效米'}}}}});
+  document.getElementById('sens_ranking').innerHTML=res.map((r,i)=>{
+    const cls=i===0?'best':i===res.length-1?'worst':'';
+    const rb=i<3?`r${i+1}`:'rn2';
+    return`<div class="ri ${cls}" style="cursor:default;padding:8px 10px;"><span class="rb ${rb}">${i+1}</span><span class="rn" style="font-size:.85rem;">${r.n}</span><span class="rs" style="font-size:1rem;">${fmt(r.H)}</span></div>`;
+  }).join('');
+}
+
+// ============================================================
+// MASTER RECALC
 // ============================================================
 function recalcAll(){
-  calcWalk();
-  calcWait();
-  calcOnboard();
-  calcTransfer();
-  recalcCompare();
-  renderCase();
-  renderSensitivity();
+  calcWalk();calcWait();calcOnboard();calcTransfer();
+  recalcCmp();renderCase();renderSens();
+  refreshTripBar();
 }
 
 // ============================================================
-// Init
+// INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded',()=>{
-  // Add default routes for compare tab
-  routeData.push({id:routeCount++, name:'纯步行', access:600, waitT:0, waitSig:0, info:false, env:0, travelT:0, crowd:0, seat:1, aveh:0.5, vib:0, transWalk:0, transLevel:0, transE:1, transCount:0, cost:0});
-  routeData.push({id:routeCount++, name:'地铁方案', access:400, waitT:2.5, waitSig:0.5, info:true, env:0, travelT:5, crowd:0.6, seat:0.4, aveh:0.9, vib:0.1, transWalk:100, transLevel:2, transE:0.9, transCount:1, cost:4});
-  routeData.push({id:routeCount++, name:'出租车', access:30, waitT:4, waitSig:2, info:true, env:0.3, travelT:9, crowd:0, seat:1, aveh:0.5, vib:0.1, transWalk:0, transLevel:0, transE:1, transCount:0, cost:16});
-  renderRouteInputs();
-  recalcAll();
+  renderRoutePresets();
+  // default compare routes
+  addCmpRoute({id:cmpCount++,name:'纯步行',access:600,waitT:0,waitSig:0,info:false,env:0,tT:0,crowd:0,seat:1,aveh:.5,vib:0,transWalk:0,transLevel:0,transE:1,transCount:0,cost:0});
+  addCmpRoute({id:cmpCount++,name:'地铁方案',access:400,waitT:2.5,waitSig:.5,info:true,env:0,tT:5,crowd:.6,seat:.4,aveh:.9,vib:.1,transWalk:100,transLevel:2,transE:.9,transCount:1,cost:4});
+  addCmpRoute({id:cmpCount++,name:'出租车',access:30,waitT:4,waitSig:2,info:true,env:.3,tT:9,crowd:0,seat:1,aveh:.5,vib:.1,transWalk:0,transLevel:0,transE:1,transCount:0,cost:16});
   document.getElementById('wt_info').addEventListener('change',calcWait);
+  recalcAll();
+  // default trip: load route 6
+  loadRoutePreset(5);
 });
 </script>
 </body>
